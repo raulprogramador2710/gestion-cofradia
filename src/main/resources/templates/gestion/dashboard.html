@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head('Panel - Dashboard')}"></head>
+<body>
+    <!-- Incluir navbar -->
+    <div th:replace="~{base :: navbar}"></div>
+
+    <!-- Contenido específico -->
+    <div class="container-fluid py-4">
+        <h1 class="text-center mb-4">Panel de Control</h1>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card shadow-sm p-3" style="border-left:5px solid var(--cp1)">
+                    <div class="card-body">
+                        <h5 class="text-muted">Total Hermanos</h5>
+                        <h2 th:text="${totalHermanos}">0</h2>
+                    </div>
+                </div>
+            </div>
+            <!-- otras tarjetas... -->
+        </div>
+    </div>
+
+    <!-- Incluir footer -->
+    <div th:replace="~{base :: footer}"></div>
+
+    <!-- Incluir scripts del base -->
+    <div th:replace="~{base :: scripts}"></div>
+</body>
+</html>

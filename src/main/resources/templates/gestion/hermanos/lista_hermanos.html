@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head('Censo de Hermanos')}"></head>
+<body>
+    <div th:replace="~{base :: navbar}"></div>
+
+    <main class="container py-4">
+        <div class="card shadow">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fa-solid fa-users"></i> CENSO DE HERMANOS</span>
+
+                <a th:href="@{/gestion/hermanos/nuevo}" class="btn btn-cofradia btn-sm">
+                    <i class="fa-solid fa-user-plus"></i> NUEVO HERMANO
+                </a>
+            </div>
+
+            <div class="card-body p-3">
+                <!-- Formulario de filtros -->
+                <form th:action="@{/gestion/hermanos}" method="get" class="row g-3 align-items-center mb-3">
+                    <div class="col-auto">
+                        <input type="text" name="filtroNombre" th:value="${filtroNombre}" placeholder="Buscar por Apellidos o Nombre" class="form-control form-control-sm"/>
+                    </div>
+                    <div class="col-auto">
+                        <input type="text" name="filtroDni" th:value="${filtroDni}" placeholder="Buscar por DNI" class="form-control form-control-sm"/>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+                    </div>
+                </form>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">
+                                    <a th:href="@{/gestion/hermanos(page=0, size=${size}, sortField='numHermano', sortDir=${sortField == 'numHermano' ? reverseSortDir : 'asc'}, filtroNombre=${filtroNombre}, filtroDni=${filtroDni})}">
+                                        Nº
+                                        <i th:classappend="${sortField == 'numHermano' ? (sortDir == 'asc' ? 'fa fa-arrow-up' : 'fa fa-arrow-down') : ''}"></i>
+                                    </a>
+                                </th>
+                                <th>
+                                    <a th:href="@{/gestion/hermanos(page=0, size=${size}, sortField='apellidos', sortDir=${sortField == 'apellidos' ? reverseSortDir : 'asc'}, filtroNombre=${filtroNombre}, filtroDni=${filtroDni})}">
+                                        Apellidos, Nombre
+                                        <i th:classappend="${sortField == 'apellidos' ? (sortDir == 'asc' ? 'fa fa-arrow-up' : 'fa fa-arrow-down') : ''}"></i>
+                                    </a>
+                                </th>
+                                <th>
+                                    <a th:href="@{/gestion/hermanos(page=0, size=${size}, sortField='dni', sortDir=${sortField == 'dni' ? reverseSortDir : 'asc'}, filtroNombre=${filtroNombre}, filtroDni=${filtroDni})}">
+                                        DNI
+                                        <i th:classappend="${sortField == 'dni' ? (sortDir == 'asc' ? 'fa fa-arrow-up' : 'fa fa-arrow-down') : ''}"></i>
+                                    </a>
+                                </th>
+                                <th>
+                                    <a th:href="@{/gestion/hermanos(page=0, size=${size}, sortField='estado.descripcion', sortDir=${sortField == 'estado.descripcion' ? reverseSortDir : 'asc'}, filtroNombre=${filtroNombre}, filtroDni=${filtroDni})}">
+                                        Estado
+                                        <i th:classappend="${sortField == 'estado.descripcion' ? (sortDir == 'asc' ? 'fa fa-arrow-up' : 'fa fa-arrow-down') : ''}"></i>
+                                    </a>
+                                </th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr th:each="h : ${hermanos}">
+                                <td class="ps-4 fw-bold" th:text="${h.numHermano}">1</td>
+                                <td th:text="${h.apellidos + ', ' + h.nombre}">García, José</td>
+                                <td th:text="${h.dni}">12345678Z</td>
+                                <td>
+                                    <span class="badge badge-estado" th:text="${h.estado != null ? h.estado.descripcion : '-'}">Activo</span>
+                                </td>
+                                <td class="text-center">
+                                    <a th:href="@{/gestion/hermanos/detalle/{id}(id=${h.id})}" class="btn btn-outline-secondary btn-sm me-1" title="Ver ficha">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </a>
+                                    <a th:href="@{/gestion/hermanos/editar/{id}(id=${h.id})}" class="btn btn-outline-primary btn-sm me-1" title="Editar">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+                                    <div sec:authorize="hasRole('ADMIN')" style="display:inline">
+	                                    <form th:action="@{/gestion/hermanos/{id}/eliminar(id=${h.id})}" method="post" th:object="${h}" style="display:inline">
+	                                        <input type="hidden" name="_method" value="delete"/>
+	                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+	                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar" onclick="return confirm('¿Eliminar este hermano? Esta acción no se puede deshacer.');">
+	                                            <i class="fa-solid fa-trash"></i>
+	                                        </button>
+	                                    </form>
+	                                </div>
+                                </td>
+                            </tr>
+
+                            <tr th:if="${#lists.isEmpty(hermanos)}">
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="fa-solid fa-info-circle me-2"></i> No hay hermanos registrados todavía.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginación -->
+                <nav aria-label="Paginación">
+                    <ul class="pagination justify-content-center mt-3">
+                        <li class="page-item" th:classappend="${hermanosPage.first} ? 'disabled'">
+                            <a class="page-link" th:href="@{/gestion/hermanos(page=${page - 1}, size=${size}, sortField=${sortField}, sortDir=${sortDir}, filtroNombre=${filtroNombre}, filtroDni=${filtroDni})}" aria-label="Anterior">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, hermanosPage.totalPages - 1)}"
+                            th:classappend="${i == page} ? 'active'">
+                            <a class="page-link" th:href="@{/gestion/hermanos(page=${i}, size=${size}, sortField=${sortField}, sortDir=${sortDir}, filtroNombre=${filtroNombre}, filtroDni=${filtroDni})}" th:text="${i + 1}">1</a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${hermanosPage.last} ? 'disabled'">
+                            <a class="page-link" th:href="@{/gestion/hermanos(page=${page + 1}, size=${size}, sortField=${sortField}, sortDir=${sortDir}, filtroNombre=${filtroNombre}, filtroDni=${filtroDni})}" aria-label="Siguiente">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{base :: footer}"></div>
+    <div th:replace="~{base :: scripts}"></div>
+</body>
+</html>

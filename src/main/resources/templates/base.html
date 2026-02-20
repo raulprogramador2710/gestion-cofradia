@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(pageTitle)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${pageTitle} ?: 'Gestión Cofradía'">Gestión Cofradía</title>
+
+    <!-- Bootstrap + FontAwesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --cp1: #2C3E50; /* Azul Medianoche */
+            --cp2: #ffffff; /* Blanco texto */
+            --csec: #3498DB; /* Azul Brillante */
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --border-radius-lg: 15px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f4;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* NAVBAR RESPONSIVE */
+        .navbar-custom {
+            background: linear-gradient(135deg, var(--cp1), #222) !important;
+            border-bottom: 3px solid var(--csec) !important;
+            padding: 0.8rem 1rem;
+        }
+        .navbar-brand { font-weight: 700; color: var(--cp2) !important; }
+        .navbar-brand i { color: var(--csec) !important; margin-right: 8px; }
+        
+        /* TARJETAS ESTILO COFRADE */
+        .card {
+            border: none;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        .card:hover { transform: translateY(-5px); }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--cp1), #222) !important;
+            color: var(--cp2) !important;
+            border-bottom: 2px solid var(--csec) !important;
+            font-weight: 600;
+            padding: 1rem 1.5rem;
+        }
+        .card-header i { color: var(--csec) !important; margin-right: 10px; }
+
+        /* BOTONES PREMIUM */
+        .btn-cofradia {
+            background-color: var(--cp1) !important;
+            color: var(--cp2) !important;
+            border: 2px solid var(--csec) !important;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            padding: 0.6rem 1.2rem;
+        }
+        .btn-cofradia:hover {
+            background-color: var(--csec) !important;
+            color: var(--cp1) !important;
+            transform: scale(1.05);
+        }
+        .btn-cofradia i { color: inherit !important; margin-right: 8px; }
+
+        /* TABLAS */
+        .table thead {
+            background-color: var(--cp1);
+            color: var(--cp2);
+            border-bottom: 2px solid var(--csec);
+        }
+        
+        /* BADGES */
+        .badge-estado {
+            background: linear-gradient(135deg, var(--csec), #b8962e) !important;
+            color: var(--cp1) !important;
+            font-weight: 700;
+            padding: 0.5em 0.8em;
+        }
+    </style>
+
+    <!-- Sobreescritura dinámica si existen colores en BD -->
+    <style th:if="${cofradia != null and cofradia.usarColoresPersonalizados}" th:inline="css">
+        :root {
+            --cp1: [(${cofradia.colorPrincipal1})];
+            --cp2: [(${cofradia.colorPrincipal2})];
+            --csec: [(${cofradia.colorSecundario})];
+        }
+    </style>
+</head>
+<body>
+    <header th:fragment="navbar">
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow">
+            <div class="container-fluid">
+                <a class="navbar-brand" th:href="@{/gestion/dashboard}">
+                    <i class="fa-solid fa-church"></i>
+                    <span th:text="${cofradia != null ? cofradia.nombre : 'Gestión Cofradía'}">Gestión</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navMenu">
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        <li class="nav-item"><a class="nav-link" th:href="@{/gestion/dashboard}">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link" th:href="@{/gestion/hermanos}">Hermanos</a></li>
+                        <li class="nav-item ms-lg-3">
+                            <form th:action="@{/logout}" method="post">
+                                <button type="submit" class="btn btn-sm btn-outline-light rounded-pill px-3">
+                                    <i class="fa-solid fa-power-off me-1"></i> Salir
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <footer th:fragment="footer" class="mt-auto py-3 text-center border-top bg-white">
+        <small class="text-muted">Sistema de Gestión Cofrade &copy; 2026</small>
+    </footer>
+
+    <div th:fragment="scripts">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </div>
+</body>
+</html>
