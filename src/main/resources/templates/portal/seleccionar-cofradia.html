@@ -1,21 +1,68 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
-    <title>Seleccionar Cofradía</title>
+    <meta charset="UTF-8">
+    <title>Seleccionar Cofradía - Portal</title>
+    <!-- Usamos el mismo CSS global -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        :root {
+            --color-principal-1: #2c3e50;
+            --color-principal-2: #e74c3c;
+            --color-secundario: #f8f9fa;
+        }
+        body { background-color: var(--color-secundario); font-family: sans-serif; }
+        .selection-container { max-width: 600px; margin: 50px auto; padding: 20px; }
+        .cofradia-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s, border-color 0.2s;
+            cursor: pointer;
+            border: 2px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cofradia-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--color-principal-1);
+        }
+        .cofradia-name { font-size: 1.2rem; font-weight: bold; color: var(--color-principal-1); }
+        .btn-select {
+            background-color: var(--color-principal-2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <h1>Selecciona la Cofradía para entrar</h1>
-    <form th:action="@{/portal/seleccionar-cofradia}" method="post">
-        <ul>
-            <li th:each="asoc : ${asociaciones}">
-                <label>
-                    <input type="radio" name="usuarioCofradiaId" th:value="${asoc.id}" />
-                    <span th:text="${asoc.cofradia.nombre} + ' - ' + ${asoc.rol.codigo}"></span>
-                </label>
-            </li>
-        </ul>
-        <button type="submit">Entrar</button>
-    </form>
+    <div class="selection-container">
+        <h2 class="text-center mb-4">Bienvenido</h2>
+        <p class="text-center text-muted">Selecciona la cofradía a la que deseas acceder:</p>
+
+        <div th:each="conf : ${cofradias}">
+            <form th:action="@{/portal/seleccionar-cofradia}" method="post">
+                <input type="hidden" name="usuarioCofradiaId" th:value="${conf.usuarioCofradiaId}">
+                <div class="cofradia-card" onclick="this.closest('form').submit()">
+                    <div class="cofradia-name" th:text="${conf.nombreCofradia}">Nombre Cofradía</div>
+                    <button type="submit" class="btn-select">Entrar</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="text-center mt-4">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" style="background:none; border:none; color:#666; text-decoration:underline; cursor:pointer;">
+                    Cerrar sesión
+                </button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

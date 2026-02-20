@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title th:utext="${pageTitle} ?: (cofradia != null ? cofradia.nombre : 'Cofradía')">Cofradía</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+
+    <style>
+        :root {
+            --color-principal-1: #2c3e50;
+            --color-principal-2: #e74c3c;
+            --color-secundario: #ffffff;
+        }
+    </style>
+
+    <!-- Si el controlador ha pasado 'cofradia' al modelo, lo usamos para sobrescribir -->
+    <style th:if="${cofradia != null and cofradia.usarColoresPersonalizados}">
+	    :root {
+	        /*[+
+	        --color-principal-1: [[${cofradia.colorPrincipal1}]];
+	        --color-principal-2: [[${cofradia.colorPrincipal2}]];
+	        --color-secundario: [[${cofradia.colorSecundario} != null ? cofradia.colorSecundario : '#ffffff'}]];
+	        +]*/
+	        --color-principal-1: #2c3e50;
+	        --color-principal-2: #e74c3c;
+	        --color-secundario: #ffffff;
+	    }
+	</style>
+
+    <style>
+        .site-header { background: var(--color-principal-1); color: white; padding:0.8rem 1rem; }
+        .btn-primary { background: var(--color-principal-2); color: white; padding:0.3rem 0.6rem; border-radius:4px; }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <a th:href="@{/'/'}" class="brand" style="color:white; text-decoration:none;">
+            <span th:if="${cofradia != null}" th:text="${cofradia.nombre}">Cofradía</span>
+            <span th:unless="${cofradia != null}">Cofradía</span>
+        </a>
+    </header>
+
+    <main style="padding:1rem;">
+        <div th:fragment="content">
+            <h1 th:text="${cofradia != null ? cofradia.nombre : 'Bienvenido'}">Título</h1>
+            <p>Contenido público...</p>
+        </div>
+    </main>
+
+    <footer style="padding:1rem; text-align:center;">
+        <small>&copy; <span th:text="${#dates.format(#dates.createNow(),'yyyy')}">2026</span> Sitio público</small>
+    </footer>
+</body>
+</html>

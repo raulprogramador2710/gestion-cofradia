@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- 1. Añadimos th:fragment="head(pageTitle)" para recibir el título -->
+<head th:fragment="head(pageTitle)">
+    <meta charset="UTF-8" />
+    <!-- 2. Usamos el parámetro pageTitle que viene del inicio -->
+    <title th:text="${pageTitle} ?: 'Gestión Cofradía'">Gestión Cofradía</title>
+
+    <!-- CSS global (static) -->
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+
+    <!-- Variables CSS por defecto -->
+    <style>
+        :root {
+            --color-principal-1: #2c3e50;
+            --color-principal-2: #e74c3c;
+            --color-secundario:  #ecf0f1;
+        }
+    </style>
+
+    <!-- Colores personalizados desde sesión -->
+    <style th:if="${session.usarColoresPersonalizados}">
+        :root {
+            /*[+
+            --color-principal-1: [[${session.color1}]];
+            --color-principal-2: [[${session.color2}]];
+            --color-secundario: [[${session.color3} != null ? session.color3 : '#ecf0f1'}]];
+            +]*/
+            --color-principal-1: #2c3e50;
+            --color-principal-2: #e74c3c;
+            --color-secundario: #ecf0f1;
+        }
+    </style>
+
+    <style>
+        body { background: var(--color-secundario); color: #222; }
+        .navbar { background-color: var(--color-principal-1); color: white; padding: 0.5rem 1rem; }
+        .btn-primary { background-color: var(--color-principal-2); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; }
+        a.brand { color: white; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <!-- 3. Añadimos th:fragment="navbar" -->
+    <header th:fragment="navbar" class="navbar">
+        <a th:href="@{/gestion/inicio}" class="brand">Gestión Cofradía</a>
+        <span th:if="${session.nombreCofradia}" style="margin-left:1rem">| <strong th:text="${session.nombreCofradia}">Cofradía</strong></span>
+
+        <form th:action="@{/logout}" method="post" style="display:inline; float:right;">
+            <button type="submit" class="btn-primary">Cerrar sesión</button>
+        </form>
+    </header>
+
+    <main style="padding:1rem;">
+        <div th:fragment="content">
+            <h2>Panel</h2>
+            <p>Pega aquí tu contenido.</p>
+        </div>
+    </main>
+
+    <!-- 4. Añadimos th:fragment="footer" -->
+    <footer th:fragment="footer" style="padding:1rem; text-align:center; border-top:1px solid #ddd;">
+        <small>&copy; <span th:text="${#dates.format(#dates.createNow(),'yyyy')}">2026</span> Gestión Cofradía</small>
+    </footer>
+
+    <!-- 5. Añadimos un fragmento vacío para scripts por si el incio lo pide -->
+    <div th:fragment="scripts"></div>
+</body>
+</html>
