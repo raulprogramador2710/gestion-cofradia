@@ -1,4 +1,4 @@
-package es.cofradia.gestioncofradia.controller;
+package es.cofradia.gestioncofradia.controller.gestion;
 
 import java.security.Principal;
 import java.util.List;
@@ -40,7 +40,6 @@ public class HermanoController {
 	
 	private final HermanoRepository hermanoRepo;
 	private final UsuarioRepository usuarioRepo;
-	private final CofradiaRepository cofradiaRepo;
 	private final EstadoHermanoRepository estadoRepo;
 	private final FormaPagoRepository pagoRepo;
 	private final FormaComunicacionRepository comunicacionRepo;

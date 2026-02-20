@@ -1,4 +1,4 @@
-package es.cofradia.gestioncofradia.controller;
+package es.cofradia.gestioncofradia.controller.gestion;
 
 import java.security.Principal;
 import java.util.List;
