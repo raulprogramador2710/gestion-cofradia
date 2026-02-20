@@ -1,5 +1,8 @@
 package es.cofradia.gestioncofradia.model;
 
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
+
 import es.cofradia.gestioncofradia.model.maestras.RolCofradia;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -23,6 +26,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "usuario_cofradia",
        uniqueConstraints = @UniqueConstraint(columnNames = {"usuario_id", "cofradia_id"}))
+@Audited
 @Getter
 @Setter
 @NoArgsConstructor
@@ -46,5 +50,6 @@ public class UsuarioCofradia {
     /** Ahora referencia a la entidad maestra RolCofradia */
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "rol_id", nullable = false)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private RolCofradia rol;
 }

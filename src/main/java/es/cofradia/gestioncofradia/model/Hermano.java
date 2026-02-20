@@ -2,6 +2,9 @@ package es.cofradia.gestioncofradia.model;
 
 import java.time.LocalDate;
 
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
+
 import es.cofradia.gestioncofradia.model.maestras.EstadoHermano;
 import es.cofradia.gestioncofradia.model.maestras.FormaComunicacion;
 import es.cofradia.gestioncofradia.model.maestras.FormaPago;
@@ -16,13 +19,25 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "hermanos",
-	uniqueConstraints = @UniqueConstraint( name = "uk_hermano_dniCofradia", columnNames = {"dni", "cofradia_id"} )
-)
-@Data
+		  uniqueConstraints = {
+		    @UniqueConstraint(name = "uk_hermano_dniCofradia", columnNames = {"dni", "cofradia_id"}),
+		    @UniqueConstraint(name = "uk_hermano_numcofr", columnNames = {"num_hermano", "cofradia_id"})
+		  }
+		)
+@Audited
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Hermano {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,13 +73,16 @@ public class Hermano {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "estado_id", nullable = false)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private EstadoHermano estado;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "forma_pago_id", nullable = false)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private FormaPago formaPago;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "forma_comunicacion_id", nullable = false)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private FormaComunicacion formaComunicacion;
 }

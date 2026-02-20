@@ -1,16 +1,27 @@
 package es.cofradia.gestioncofradia.model;
 
+import org.hibernate.envers.Audited;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "cofradias")
-@Data
+@Audited
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Cofradia {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +34,9 @@ public class Cofradia {
     private String nombreCompleto;
     
     private String cif;
+    
+    @Column(name = "slug", unique = true, nullable = false)
+    private String slug; // Ejemplo: "expiracion"
     
     // Colores (hex, con #). Aceptamos null si no hay tercer color.
     @Column(name = "color_principal_1")

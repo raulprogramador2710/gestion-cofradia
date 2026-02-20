@@ -5,6 +5,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,6 +30,7 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "usuario")
+@Audited
 @Getter
 @Setter
 @NoArgsConstructor
@@ -44,6 +48,7 @@ public class Usuario {
     private String usuario;
 
     @Column(name = "clave", nullable = false)
+    @NotAudited
     private String clave;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

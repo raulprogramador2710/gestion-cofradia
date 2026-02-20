@@ -48,6 +48,7 @@ public class DataLoader implements CommandLineRunner {
                     c.setNombre("Cofradia de la Expiración");
                     c.setNombreCompleto("Cofradia del Santísimo Cristo de la Expiración, Señor de las Penas, y María Santísima de los Dolores");
                     c.setCif("G12345678");
+                    c.setSlug("expiracion");
                     c.setColorPrincipal1("#000000");
                     c.setColorPrincipal2("#ffffff");
                     c.setColorSecundario("#ffd700");
@@ -61,6 +62,7 @@ public class DataLoader implements CommandLineRunner {
                     c.setNombre("Hermandad del prendimiento");
                     c.setNombreCompleto("Hermandad del prendimiento");
                     c.setCif("G12345677");
+                    c.setSlug("prendimiento");
                     c.setColorPrincipal1("#800040");
                     c.setColorPrincipal2("#FDFBD4");
                     c.setColorSecundario(null);
@@ -75,6 +77,7 @@ public class DataLoader implements CommandLineRunner {
         createRolSiNoExiste("HM", "Hermano mayor");
         createRolSiNoExiste("TES", "Tesorero");
         createRolSiNoExiste("SEC", "Secretario");
+        createRolSiNoExiste("RRSS", "Redes sociales");
         createRolSiNoExiste("HER", "Hermano");
         System.out.println(">> Roles asegurados.");
         
@@ -150,15 +153,16 @@ public class DataLoader implements CommandLineRunner {
         
         
         
-        // --- CREAR UN HERMANO DE PRUEBA VINCULADO AL USUARIO ---
+     // --- CREAR UN HERMANO DE PRUEBA EN CADA COFRADÍA ---
         String dniPrueba = "54119089C";
-        if (hermanoRepo.findByDni(dniPrueba).isEmpty()) {
-            Cofradia exp = cofradiaRepo.findByNombre("Cofradia de la Expiración").orElseThrow();
+
+        // Hermano en Expiración
+        Cofradia exp = cofradiaRepo.findByNombre("Cofradia de la Expiración").orElseThrow();
+        if (hermanoRepo.findByDniAndCofradiaId(dniPrueba, exp.getId()).isEmpty()) {
             EstadoHermano estadoActivo = estadoRepo.findByCodigo("ACTIVO").orElseThrow();
             FormaPago pagoTranseferencia = pagoRepo.findByCodigo("TRANSFERENCIA").orElseThrow();
             FormaComunicacion comWhatsapp = comunicacionRepo.findByCodigo("WHATSAPP").orElseThrow();
 
-            // 2. Creamos el objeto Hermano
             Hermano hermano = new Hermano();
             hermano.setCofradia(exp);
             hermano.setEstado(estadoActivo);
@@ -180,15 +184,18 @@ public class DataLoader implements CommandLineRunner {
             hermano.setLopd(true);
 
             hermanoRepo.save(hermano);
-            
-            exp = cofradiaRepo.findByNombre("Hermandad del prendimiento").orElseThrow();
-            estadoActivo = estadoRepo.findByCodigo("ACTIVO").orElseThrow();
-            pagoTranseferencia = pagoRepo.findByCodigo("TRANSFERENCIA").orElseThrow();
-            comWhatsapp = comunicacionRepo.findByCodigo("WHATSAPP").orElseThrow();
+            System.out.println(">> Hermano de prueba creado en Expiración.");
+        }
 
-            // 2. Creamos el objeto Hermano
-            hermano = new Hermano();
-            hermano.setCofradia(exp);
+        // Hermano en Prendimiento
+        Cofradia pre = cofradiaRepo.findByNombre("Hermandad del prendimiento").orElseThrow();
+        if (hermanoRepo.findByDniAndCofradiaId(dniPrueba, pre.getId()).isEmpty()) {
+            EstadoHermano estadoActivo = estadoRepo.findByCodigo("ACTIVO").orElseThrow();
+            FormaPago pagoTranseferencia = pagoRepo.findByCodigo("TRANSFERENCIA").orElseThrow();
+            FormaComunicacion comWhatsapp = comunicacionRepo.findByCodigo("WHATSAPP").orElseThrow();
+
+            Hermano hermano = new Hermano();
+            hermano.setCofradia(pre);
             hermano.setEstado(estadoActivo);
             hermano.setFormaPago(pagoTranseferencia);
             hermano.setFormaComunicacion(comWhatsapp);
@@ -208,8 +215,7 @@ public class DataLoader implements CommandLineRunner {
             hermano.setLopd(true);
 
             hermanoRepo.save(hermano);
-            System.out.println(">> Hermano de prueba creado y vinculado al usuario admin.");
-        
+            System.out.println(">> Hermano de prueba creado en Prendimiento.");
         }
         
         
