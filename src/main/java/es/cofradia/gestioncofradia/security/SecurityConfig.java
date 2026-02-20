@@ -9,23 +9,28 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import lombok.RequiredArgsConstructor;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+	
+	private final CustomSuccessHandler successHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/index", "/public/**", "/css/**", "/js/**", "/images/**").permitAll() // Público
-                .requestMatchers("/gestion/**").hasAnyAuthority("ADMIN", "HM", "TES", "SEC")// Gestión (Junta) -> permitir a quien tenga HM, TES o SEC (ajusta según quieras)
-                .requestMatchers("/portal/**").hasAnyAuthority("HER", "HM", "TES", "SEC") // Portal -> permitir a hermanos y también a roles de la Junta si procede
+                .requestMatchers("/gestion/**").hasAnyAuthority("ADMIN", "HM", "TES", "SEC", "RRSS")// Gestión (Junta) -> permitir a quien tenga HM, TES o SEC (ajusta según quieras)
+                .requestMatchers("/portal/**").hasAnyAuthority("HER") // Portal -> permitir a hermanos y también a roles de la Junta si procede
                 .anyRequest().authenticated() // Todo lo demás requiere login
             )
             .formLogin(form -> form
                 .loginPage("/login") // Nuestra futura página de login personalizada
-                .defaultSuccessUrl("/gestion/dashboard", true)
+                .successHandler(successHandler)
                 .permitAll()
             )
             .logout(logout -> logout

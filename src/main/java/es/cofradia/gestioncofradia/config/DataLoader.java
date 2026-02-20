@@ -121,6 +121,25 @@ public class DataLoader implements CommandLineRunner {
                     .build();
             usuarioCofradiaRepo.save(uc2);
         }
+        
+        // usuario raul
+        String userRaul = "RAUGONBER";
+        if (usuarioRepo.findByUsuario(userRaul).isEmpty()) {
+            Usuario hermanoRaul = new Usuario();
+            hermanoRaul.setUsuario(userRaul);
+            hermanoRaul.setClave(passwordEncoder.encode("Temporal01"));
+            hermanoRaul = usuarioRepo.save(hermanoRaul);
+
+            RolCofradia rolPres = rolRepo.findByCodigo("HER")
+                    .orElseThrow(() -> new IllegalStateException("Role Hermano no existe"));
+
+            UsuarioCofradia uc2 = UsuarioCofradia.builder()
+                    .usuario(hermanoRaul)
+                    .cofradia(expiracion)
+                    .rol(rolPres)
+                    .build();
+            usuarioCofradiaRepo.save(uc2);
+        }
 
         System.out.println(">> Usuarios administradores creados/asociados.");
 

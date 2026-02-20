@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Seleccionar Cofradía</title>
+</head>
+<body>
+    <h1>Selecciona la Cofradía para entrar</h1>
+    <form th:action="@{/portal/seleccionar-cofradia}" method="post">
+        <ul>
+            <li th:each="asoc : ${asociaciones}">
+                <label>
+                    <input type="radio" name="usuarioCofradiaId" th:value="${asoc.id}" />
+                    <span th:text="${asoc.cofradia.nombre} + ' - ' + ${asoc.rol.codigo}"></span>
+                </label>
+            </li>
+        </ul>
+        <button type="submit">Entrar</button>
+    </form>
+</body>
+</html>
