@@ -1,6 +1,8 @@
 package es.cofradia.gestioncofradia.config;
 
-import org.springframework.security.core.Authentication;
+import java.security.Principal;
+
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -14,23 +16,16 @@ public class GlobalModelAttributes {
 
     private final UsuarioRepository usuarioRepo;
 
-    @ModelAttribute("cofradia")
-    public Object addCofradiaToModel(Authentication authentication) {
-        // Si no hay nadie logueado (página pública), no añadimos nada
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getName().equals("anonymousUser")) {
-            return null;
+    @ModelAttribute
+    public void addGlobalAttributes(Model model, Principal principal) {
+        if (principal != null) {
+            usuarioRepo.findByUsuario(principal.getName()).ifPresent(u -> {
+                if (!u.getUsuarioCofradias().isEmpty()) {
+                    UsuarioCofradia uc = u.getUsuarioCofradias().iterator().next();
+                    model.addAttribute("cofradia", uc.getCofradia());
+                }
+                model.addAttribute("usuarioLogueado", u.getUsuario());
+            });
         }
-
-        String username = authentication.getName();
-        
-        return usuarioRepo.findByUsuario(username)
-                .map(usuario -> {
-                    // Buscamos la primera cofradía asociada al usuario
-                    return usuario.getUsuarioCofradias().stream()
-                            .findFirst()
-                            .map(UsuarioCofradia::getCofradia)
-                            .orElse(null);
-                })
-                .orElse(null);
     }
 }

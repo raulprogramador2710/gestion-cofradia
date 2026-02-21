@@ -1,50 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{gestion/base :: head('Panel - Inicio')}"></head>
-<style>
-    /* FUERZA EL ESTILO PARA QUE NO SEA FEO */
-    body { background-color: #f4f7f6; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #333; }
-    
-    .main-content { padding: 40px; }
-    
-    .page-title { font-weight: 800; color: var(--cp1); margin-bottom: 5px; font-size: 2.2rem; }
-    .page-subtitle { color: #888; margin-bottom: 30px; font-size: 1rem; }
-
-    /* TARJETAS DE ESTADÍSTICAS */
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px; }
-    
-    .stat-card {
-        background: white;
-        padding: 25px;
-        border-radius: 15px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        border-left: 6px solid var(--cp1);
-        transition: transform 0.3s ease;
-    }
-    .stat-card:hover { transform: translateY(-5px); }
-    .stat-card.color2 { border-left-color: var(--cp2); }
-    .stat-card.color3 { border-left-color: #6c757d; }
-    
-    .stat-label { text-transform: uppercase; font-size: 0.75rem; font-weight: 700; color: #999; letter-spacing: 1px; margin-bottom: 10px; }
-    .stat-value { font-size: 2.5rem; font-weight: 800; color: #2d3436; line-height: 1; }
-
-    /* SECCIÓN DE GRÁFICOS */
-    .charts-section {
-        background: white;
-        padding: 30px;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-    }
-    .charts-header { border-bottom: 1px solid #eee; margin-bottom: 30px; padding-bottom: 15px; }
-    .charts-header h5 { font-weight: 700; margin: 0; color: #2d3436; }
-
-    .charts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; text-align: center; }
-    
-    .chart-item h6 { font-weight: 600; color: #636e72; margin-bottom: 20px; font-size: 0.9rem; }
-    .canvas-wrapper { position: relative; height: 220px; width: 100%; }
-
-    @media (max-width: 992px) { .charts-grid { grid-template-columns: 1fr; } }
-</style>
 <body>
     <div th:replace="~{gestion/base :: navbar}"></div>
 
@@ -106,56 +62,74 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script th:inline="javascript">
-        // Limpiamos los nombres de los objetos (para que no salga el @hash de Java)
-        function cleanLabels(dataMap) {
-            const clean = {};
-            Object.keys(dataMap).forEach(key => {
-                // Si es un objeto de base de datos, intentamos sacar la descripción o nombre
-                let newKey = key;
-                if (key.includes('@')) newKey = "Dato " + Math.floor(Math.random()*100);
-                clean[newKey] = dataMap[key];
-            });
-            return clean;
-        }
+    // Función para limpiar etiquetas raras de Java
+    function cleanLabels(dataMap) {
+        const clean = {};
+        if (!dataMap) return clean;
+        Object.keys(dataMap).forEach(key => {
+            let newKey = key;
+            // Si la clave parece un objeto de Java (tiene @), le ponemos un nombre genérico
+            if (key.includes('@')) newKey = "Dato " + Math.floor(Math.random()*100);
+            clean[newKey] = dataMap[key];
+        });
+        return clean;
+    }
 
-        const dataEstado = /*[[${hermanosPorEstado}]]*/ {};
-        const dataPago = /*[[${hermanosPorFormaPago}]]*/ {};
-        const dataComunicacion = /*[[${hermanosPorFormaComunicacion}]]*/ {};
+    // 1. Recogemos los datos de Thymeleaf
+    const rawEstado = /*[[${hermanosPorEstado}]]*/ {};
+    const rawPago = /*[[${hermanosPorFormaPago}]]*/ {};
+    const rawComunicacion = /*[[${hermanosPorFormaComunicacion}]]*/ {};
 
-        const color1 = getComputedStyle(document.documentElement).getPropertyValue('--cp1').trim() || '#2c3e50';
-        const color2 = getComputedStyle(document.documentElement).getPropertyValue('--cp2').trim() || '#e74c3c';
+    // 2. Limpiamos los datos para que las etiquetas salgan bien
+    const dataEstado = cleanLabels(rawEstado);
+    const dataPago = cleanLabels(rawPago);
+    const dataComunicacion = cleanLabels(rawComunicacion);
+
+    // Colores corporativos
+    const color1 = getComputedStyle(document.documentElement).getPropertyValue('--cp1').trim() || '#2c3e50';
+    const color2 = getComputedStyle(document.documentElement).getPropertyValue('--cp2').trim() || '#e74c3c';
+    const palette = [color1, color2, '#00b894', '#fdcb6e', '#6c5ce7', '#fab1a0', '#0984e3'];
+
+    function createChart(id, dataMap) {
+        const canvas = document.getElementById(id);
+        if (!canvas) return;
         
-        const palette = [color1, color2, '#00b894', '#fdcb6e', '#6c5ce7', '#fab1a0', '#0984e3'];
-
-        function createChart(id, dataMap) {
-            const ctx = document.getElementById(id).getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(dataMap),
-                    datasets: [{
-                        data: Object.values(dataMap),
-                        backgroundColor: palette,
-                        borderWidth: 4,
-                        borderColor: '#ffffff',
-                        hoverOffset: 15
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    cutout: '70%',
-                    plugins: {
-                        legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true, font: { size: 11 } } }
+        const ctx = canvas.getContext('2d');
+        new Chart(ctx, {
+            type: 'pie', // <--- AQUÍ: TARTA (PIE)
+            data: {
+                labels: Object.keys(dataMap),
+                datasets: [{
+                    data: Object.values(dataMap),
+                    backgroundColor: palette,
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                // cutout: '70%', // <--- ELIMINADO: Las tartas no llevan cutout
+                plugins: {
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { 
+                            padding: 15, 
+                            usePointStyle: true, 
+                            font: { size: 11 } 
+                        } 
                     }
                 }
-            });
-        }
+            }
+        });
+    }
 
-        window.onload = () => {
-            createChart('chartEstado', dataEstado);
-            createChart('chartPago', dataPago);
-            createChart('chartComunicacion', dataComunicacion);
-        };
-    </script>
+    // Dibujamos al cargar la página
+    window.onload = () => {
+        createChart('chartEstado', dataEstado);
+        createChart('chartPago', dataPago);
+        createChart('chartComunicacion', dataComunicacion);
+    };
+</script>
 </body>
 </html>

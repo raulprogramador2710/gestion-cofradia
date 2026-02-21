@@ -8,16 +8,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import es.cofradia.gestioncofradia.model.Hermano;
 import es.cofradia.gestioncofradia.model.Usuario;
@@ -25,12 +26,12 @@ import es.cofradia.gestioncofradia.model.UsuarioCofradia;
 import es.cofradia.gestioncofradia.model.maestras.EstadoHermano;
 import es.cofradia.gestioncofradia.model.maestras.FormaComunicacion;
 import es.cofradia.gestioncofradia.model.maestras.FormaPago;
-import es.cofradia.gestioncofradia.repository.CofradiaRepository;
 import es.cofradia.gestioncofradia.repository.HermanoRepository;
 import es.cofradia.gestioncofradia.repository.UsuarioRepository;
 import es.cofradia.gestioncofradia.repository.maestras.EstadoHermanoRepository;
 import es.cofradia.gestioncofradia.repository.maestras.FormaComunicacionRepository;
 import es.cofradia.gestioncofradia.repository.maestras.FormaPagoRepository;
+import es.cofradia.gestioncofradia.service.HermanoService;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -44,7 +45,9 @@ public class HermanoController {
 	private final FormaPagoRepository pagoRepo;
 	private final FormaComunicacionRepository comunicacionRepo;
 	
-	private static final List<String> ROLES_GESTION = List.of("ADMIN", "HM", "TES", "SEC");
+	private final HermanoService hermanoService;
+	
+	private static final List<String> ROLES_GESTION = List.of("ADMIN", "HM", "TES", "SEC", "RRSS");
 	
 	@GetMapping
 	@Transactional(readOnly = true)
@@ -193,11 +196,11 @@ public class HermanoController {
         return "gestion/hermanos/form_hermano";
     }
     
-    @GetMapping("/{id}/eliminar")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String eliminarHermano(@PathVariable Long id) {
-        hermanoRepo.deleteById(id);
-        return "redirect:/gestion/hermanos?deleted";
+    @DeleteMapping("/{id}/eliminar")
+    public String eliminarHermano(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    	hermanoService.eliminarPorId(id);
+        redirectAttributes.addFlashAttribute("mensaje", "Hermano eliminado.");
+        return "redirect:/gestion/hermanos";
     }
 
     private void cargarMaestras(Model model) {
@@ -206,9 +209,6 @@ public class HermanoController {
         model.addAttribute("formasComunicacion", comunicacionRepo.findAll());
     }
 
-    /**
-     * Devuelve el siguiente número de hermano para la cofradía: max(numHermano) + 1.
-     */
     private int calcularSiguienteNum(Long cofradiaId) {
         Integer max = hermanoRepo.findMaxNumHermanoByCofradiaId(cofradiaId);
         return (max == null ? 1 : max + 1);

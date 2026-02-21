@@ -1,0 +1,505 @@
+/* 
+   CSS GLOBAL PARA EL ÁREA DE GESTIÓN 
+   Diseño base: NEGRO (principal), BLANCO (fondos/textos), DORADO (acento)
+   Mantengo compatibilidad con --cp1 / --cp2 mapeándolos a las nuevas vars.
+*/
+
+/* -------------------------
+   VARIABLES GLOBALES (BASE)
+   ------------------------- */
+:root {
+    /* Paleta base (tu cofradía por defecto: negro + dorado) */
+    --cp-main: #1a1a1a;           /* color principal (negro) */
+    --cp-accent: #d4af37;         /* acento (dorado) */
+    --cp-text-on-main: #ffffff;   /* texto sobre el color principal */
+
+    /* Soporte de borde y neutrales */
+    --cp-border: #e0e0e0;
+    --bg-body: #f4f4f6;           /* fondo de la app (muy claro) */
+    --bg-card: #ffffff;
+    --text-body: #333333;
+
+    /* Compatibilidad legacy: variables que ya usa el CSS original */
+    --cp1: var(--cp-main);        /* legacy -> apunta al color principal */
+    --cp2: var(--cp-accent);      /* legacy -> apunta al acento */
+}
+
+/* -------------------------
+   CONFIGURACIÓN BASE
+   ------------------------- */
+body {
+    background-color: var(--bg-body);
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text-body);
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    padding: 40px;
+    flex: 1;
+}
+
+/* NAVBAR PERSONALIZADA: fondo negro con texto contrastado y línea dorada */
+.navbar-custom { 
+    background-color: var(--cp-main);
+    color: var(--cp-text-on-main);
+    padding: 0.8rem 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid var(--cp-accent);
+}
+
+.navbar-custom a { 
+    color: var(--cp-text-on-main); 
+    text-decoration: none; 
+    font-weight: 700; 
+    font-size: 1.2rem;
+}
+
+.navbar-custom .brand-info {
+    display: flex;
+    align-items: center;
+}
+
+/* BOTÓN CERRAR SESIÓN */
+/* Usamos acento para acciones secundarias (puedes cambiar a var(--cp-main) si prefieres negro) */
+.btn-logout { 
+    background-color: var(--cp-accent); 
+    color: var(--cp-main); 
+    border: none; 
+    padding: 0.5rem 1.2rem; 
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.btn-logout:hover { 
+    opacity: 0.95; 
+    transform: translateY(-1px);
+}
+
+/* TÍTULOS DE PÁGINA */
+.page-title {
+    font-weight: 800;
+    color: var(--cp-main); /* título en color principal (negro por defecto) */
+    margin-bottom: 5px;
+    font-size: 2.2rem;
+}
+
+.page-subtitle {
+    color: #888;
+    margin-bottom: 30px;
+    font-size: 1rem;
+}
+
+/* GRID DE TARJETAS DE ESTADÍSTICAS */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border-left: 6px solid var(--cp-accent); /* acento dorado por defecto */
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card.color2 {
+    border-left-color: var(--cp-accent);
+}
+
+.stat-card.color3 {
+    border-left-color: #6c757d;
+}
+
+.stat-label {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #999;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+/* Los valores destacados en las cartas son oscuros (legibles sobre blanco) */
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--cp-main);
+    line-height: 1;
+}
+
+/* SECCIÓN DE CONTENEDORES Y GRÁFICOS */
+.charts-section {
+    background: var(--bg-card);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    border: 1px solid var(--cp-border);
+}
+
+.charts-header {
+    border-bottom: 1px solid #eee;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+}
+
+.charts-header h5 {
+    font-weight: 700;
+    margin: 0;
+    color: #2d3436;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    text-align: center;
+}
+
+.chart-item h6 {
+    font-weight: 600;
+    color: #636e72;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.canvas-wrapper {
+    position: relative;
+    height: 220px;
+    width: 100%;
+}
+
+/* FOOTER */
+footer {
+    padding: 20px;
+    text-align: center;
+    color: #999;
+    border-top: 1px solid #eee;
+    background: var(--bg-card);
+}
+
+/* RESPONSIVE */
+@media (max-width: 992px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+    .main-content {
+        padding: 20px;
+    }
+    .navbar-custom {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+}
+
+/* -----------------------------------------------------------
+   Estilos para tablas, tarjetas, paginación y formularios
+   ----------------------------------------------------------- */
+
+/* Estilos para las Tablas */
+.table {
+    width: 100%;
+    margin-bottom: 1rem;
+    background-color: transparent;
+    border-collapse: collapse;
+}
+
+.table thead th {
+    border-bottom: 2px solid var(--cp-border);
+    color: var(--cp-main);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    padding: 12px;
+}
+
+.table td {
+    padding: 12px;
+    vertical-align: middle;
+    border-top: 1px solid var(--cp-border);
+}
+
+/* Card que envuelve la tabla */
+.card {
+    background: var(--bg-card);
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--cp-border);
+    padding: 15px 25px;
+    font-weight: 700;
+    color: var(--cp-main);
+}
+
+/* Badges de Estado */
+.badge-estado {
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background-color: var(--cp-main);
+    color: var(--cp-text-on-main);
+}
+
+/* Inputs y Filtros */
+.form-control-sm {
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    padding: 5px 10px;
+    color: var(--text-body);
+}
+
+/* Botones primarios: NEGRO de fondo con borde dorado y texto contrastado */
+.btn-primary,
+.btn-primary.btn-sm {
+    background-color: var(--cp-main);
+    color: var(--cp-text-on-main);
+    border: 1px solid var(--cp-accent);
+    border-radius: 8px;
+    padding: 5px 15px;
+    transition: background-color 0.2s, color 0.2s, transform 0.12s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.btn-primary:hover {
+    background-color: var(--cp-accent);
+    color: var(--cp-main);
+    transform: translateY(-2px);
+}
+
+/* Paginación */
+.pagination {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    gap: 5px;
+}
+
+.page-link {
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: var(--bg-card);
+    color: var(--cp-main);
+    text-decoration: none;
+    border: 1px solid var(--cp-border);
+}
+
+.page-item.active .page-link {
+    background-color: var(--cp-main);
+    color: var(--cp-text-on-main);
+    border-color: var(--cp-main);
+}
+
+/* -----------------------------------------------------------
+   Modal de confirmación personalizado
+   ----------------------------------------------------------- */
+
+.confirm-modal {
+  position: fixed;
+  inset: 0;
+  display: none !important;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  font-family: inherit;
+}
+
+.confirm-modal[aria-hidden="false"] {
+  display: flex !important;
+}
+
+/* Fondo (oscurece la página) */
+.confirm-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 12, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+/* Panel centrado */
+.confirm-modal-panel {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg-card);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+  overflow: hidden;
+  z-index: 1101;
+  transform: translateY(-10px);
+  transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+/* Header */
+.confirm-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: linear-gradient(90deg, var(--cp-main), rgba(0,0,0,0.02));
+  color: var(--cp-text-on-main);
+}
+
+.confirm-modal-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+/* Close button */
+.confirm-close {
+  background: transparent;
+  border: none;
+  color: var(--cp-text-on-main);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Body */
+.confirm-modal-body {
+  padding: 20px;
+  color: var(--text-body);
+  background: var(--bg-body, #fafcfb);
+}
+
+.confirm-modal-body p {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+/* Footer (botones) */
+.confirm-modal-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--cp-border);
+}
+
+/* Botones del modal (mantengo tus clases y añado seguridad) */
+.btn-danger {
+  background: var(--cp-accent); /* dorado para destacar acción (por decidir) */
+  color: var(--cp-main);
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.btn-outline-secondary {
+  background: transparent;
+  color: var(--text-body);
+  border: 1px solid var(--cp-border);
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Ajustes responsive del modal */
+@media (max-width: 520px) {
+  .confirm-modal-panel { margin: 16px; max-width: calc(100% - 32px); }
+}
+
+/* -----------------------------------------------------------
+   OVERRIDES Y MEJORAS (NO BORRAR): uniformidad de botones de acción
+   ----------------------------------------------------------- */
+
+/* Botones de acción en tablas: cuadrados uniformes */
+.table .btn-sm {
+    width: 34px !important;
+    height: 34px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    border-radius: 8px !important;
+    border: 1px solid var(--cp-border) !important;
+    background: var(--bg-card) !important;
+    color: var(--cp-main) !important;
+}
+
+/* Ajuste del icono dentro del botón para que quede centrado y no varíe el ancho */
+.table .btn-sm i {
+    font-size: 0.9rem !important;
+    line-height: 1 !important;
+}
+
+/* Pequeño ajuste visual para separar iconos de texto si acaso se usan */
+.table .btn-sm .fa-fw {
+    width: 1em;
+}
+
+/* Asegurar contraste y focus visible para accesibilidad */
+.table .btn-sm:focus {
+    outline: 3px solid rgba(44,62,80,0.12);
+    outline-offset: 2px;
+}
+
+/* Si quieres que el botón de acción sea del color principal (var(--cp-main)) */
+/* añade la clase .btn-action-brand sobre el botón en el HTML */
+.btn-action-brand {
+    background: var(--cp-main) !important;
+    color: var(--cp-text-on-main) !important;
+    border: 1px solid var(--cp-accent) !important;
+}
+
+/* Opcional: en móviles reducir el tamaño para que no ocupe mucho espacio */
+@media (max-width: 520px) {
+    .table .btn-sm {
+        width: 30px !important;
+        height: 30px !important;
+    }
+}
+
+/* -------------------------
+   UTILIDADES ADICIONALES
+   ------------------------- */
+
+/* Forzar contraste de texto sobre fondo principal (útil para badges o etiquetas) */
+.text-on-primary {
+    color: var(--cp-text-on-main) !important;
+}
+
+/* Si necesitas forzar un borde con el color de la cofradía */
+.border-accent {
+    border-color: var(--cp-accent) !important;
+}
+
+/* Si la cofradía decide un color claro como --cp-main, y quieres forzar texto oscuro
+   la variable --cp-text-on-main debe ser inyectada desde el server (base.html)
+   Ejemplo en base.html:
+   <style th:inline="text">
+     :root {
+       --cp-main: #fbf1d3;
+       --cp-accent: #b57800;
+       --cp-text-on-main: #111111;
+     }
+   </style>
+*/

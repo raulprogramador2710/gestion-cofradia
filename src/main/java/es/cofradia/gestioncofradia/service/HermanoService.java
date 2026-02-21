@@ -12,9 +12,13 @@ public class HermanoService {
 	
 	private final HermanoRepository hermanoRepo;
 
-	public List<Hermano> listarTodos() {
-	    return hermanoRepo.findAll();
-	}
+	public void eliminarPorId(Long id) {
+        hermanoRepo.deleteById(id);
+    }
+
+    public List<Hermano> listarPorCofradia(Long cofradiaId) {
+        return hermanoRepo.findByCofradiaIdOrderByNumHermanoAsc(cofradiaId);
+    }
 	
 	public void guardar(Hermano hermano) {
 	    hermanoRepo.save(hermano);

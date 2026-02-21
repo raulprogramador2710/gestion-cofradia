@@ -1,66 +1,40 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{base :: head('Ficha Hermano')}"></head>
+<head th:replace="~{gestion/base :: head('Ficha Hermano')}"></head>
 <body>
-<div th:replace="~{base :: navbar}"></div>
+<div th:replace="~{gestion/base :: navbar}"></div>
 
-<main class="container py-4">
+<main class="main-content container py-4">
     <div class="card shadow">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Ficha de Hermano</h5>
+            <h5 class="mb-0 fw-bold">Ficha de Hermano</h5>
             <div>
                 <a th:href="@{/gestion/hermanos}" class="btn btn-secondary btn-sm">Volver</a>
                 <a th:href="@{/gestion/hermanos/editar/{id}(id=${hermano.id})}" class="btn btn-primary btn-sm">Editar</a>
             </div>
         </div>
         <div class="card-body">
+            <h2 class="page-title mb-4" th:text="${hermano.apellidos + ', ' + hermano.nombre}">García, José</h2>
             <dl class="row">
-                <dt class="col-sm-3">Nº Hermano</dt>
-                <dd class="col-sm-9" th:text="${hermano.numHermano}">1</dd>
-
-                <dt class="col-sm-3">Apellidos, Nombre</dt>
-                <dd class="col-sm-9" th:text="${hermano.nombre + ' ' + hermano.apellidos}">García, José</dd>
-
-                <dt class="col-sm-3">DNI</dt>
-                <dd class="col-sm-9" th:text="${hermano.dni}">12345678Z</dd>
-
-                <dt class="col-sm-3">Fecha inicio en la cofrdia</dt>
-                <dd class="col-sm-9" th:text="${hermano.fechaInicioCofradia}">2015</dd>
-
-                <dt class="col-sm-3">Fecha ultimo pago</dt>
-                <dd class="col-sm-9" th:text="${hermano.fechaUltimoPago}">2015</dd>
-
-                <dt class="col-sm-3">Fecha Nacimiento</dt>
-                <dd class="col-sm-9" th:text="${hermano.fechaNacimiento != null ? #temporals.format(hermano.fechaNacimiento, 'dd/MM/yyyy') : '-'}">01/01/1970</dd>
-
-                <dt class="col-sm-3">Email</dt>
-                <dd class="col-sm-9" th:text="${hermano.email}">ejemplo@ejemplo.com</dd>
-
-                <dt class="col-sm-3">Estado</dt>
-                <dd class="col-sm-9" th:text="${hermano.estado != null ? hermano.estado.codigoVisual : '-'}">Activo</dd>
-
-                <dt class="col-sm-3">Forma de Pago</dt>
-                <dd class="col-sm-9" th:text="${hermano.formaPago != null ? hermano.formaPago.codigoVisual : '-'}">Transferencia</dd>
-
-                <dt class="col-sm-3">Forma de Comunicación</dt>
-                <dd class="col-sm-9" th:text="${hermano.formaComunicacion != null ? hermano.formaComunicacion.codigoVisual : '-'}">Email</dd>
-
-                <dt class="col-sm-3">Dirección</dt>
-                <dd class="col-sm-9" th:text="${hermano.direccion}">C/ Ejemplo 1</dd>
-
-                <dt class="col-sm-3">Localidad</dt>
-                <dd class="col-sm-9" th:text="${hermano.localidad}">Adra</dd>
-
-                <dt class="col-sm-3">Teléfono</dt>
-                <dd class="col-sm-9" th:text="${hermano.telefono}">600000000</dd>
-
-                <dt class="col-sm-3">IBAN</dt>
-                <dd class="col-sm-9" th:text="${hermano.iban}">ES00 0000 0000</dd>
+                <dt class="col-sm-3">Nº Hermano</dt><dd class="col-sm-9" th:text="${hermano.numHermano}">1</dd>
+                <dt class="col-sm-3">DNI</dt><dd class="col-sm-9" th:text="${hermano.dni}">12345678Z</dd>
+                <dt class="col-sm-3">Fecha inicio cofradía</dt><dd class="col-sm-9" th:text="${hermano.fechaInicioCofradia}">2015</dd>
+                <dt class="col-sm-3">Fecha último pago</dt><dd class="col-sm-9" th:text="${hermano.fechaUltimoPago}">2015</dd>
+                <dt class="col-sm-3">Fecha Nacimiento</dt><dd class="col-sm-9" th:text="${hermano.fechaNacimiento != null ? #temporals.format(hermano.fechaNacimiento, 'dd/MM/yyyy') : '-'}">01/01/1970</dd>
+                <dt class="col-sm-3">Email</dt><dd class="col-sm-9" th:text="${hermano.email}">ejemplo@ejemplo.com</dd>
+                <dt class="col-sm-3">Estado</dt><dd class="col-sm-9" th:text="${hermano.estado != null ? hermano.estado.codigoVisual : '-'}">Activo</dd>
+                <dt class="col-sm-3">Forma de Pago</dt><dd class="col-sm-9" th:text="${hermano.formaPago != null ? hermano.formaPago.codigoVisual : '-'}">Transferencia</dd>
+                <dt class="col-sm-3">Forma de Comunicación</dt><dd class="col-sm-9" th:text="${hermano.formaComunicacion != null ? hermano.formaComunicacion.codigoVisual : '-'}">Email</dd>
+                <dt class="col-sm-3">Dirección</dt><dd class="col-sm-9" th:text="${hermano.direccion}">C/ Ejemplo 1</dd>
+                <dt class="col-sm-3">Localidad</dt><dd class="col-sm-9" th:text="${hermano.localidad}">Adra</dd>
+                <dt class="col-sm-3">Teléfono</dt><dd class="col-sm-9" th:text="${hermano.telefono}">600000000</dd>
+                <dt class="col-sm-3">IBAN</dt><dd class="col-sm-9" th:text="${hermano.iban}">ES00 0000 0000</dd>
             </dl>
         </div>
     </div>
 </main>
 
-<div th:replace="~{base :: footer}"></div>
+<div th:replace="~{gestion/base :: footer}"></div>
+<div th:replace="~{gestion/base :: scripts}"></div>
 </body>
 </html>

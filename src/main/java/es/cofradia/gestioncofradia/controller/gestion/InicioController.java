@@ -3,8 +3,9 @@ package es.cofradia.gestioncofradia.controller.gestion;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,33 +28,43 @@ public class InicioController {
     @GetMapping({"/gestion/inicio", "/gestion/dashboard"})
     public String Inicio(Model model, Principal principal) {
 
+    	List<Hermano> hermanos = List.of();
+
         if (principal != null) {
-            usuarioRepo.findByUsuario(principal.getName()).ifPresent((Usuario u) -> {
+            // Buscamos al usuario
+            Optional<Usuario> userOpt = usuarioRepo.findByUsuario(principal.getName());
+            
+            if (userOpt.isPresent()) {
+                Usuario u = userOpt.get();
+                model.addAttribute("usuarioLogueado", u.getUsuario());
+
                 if (!u.getUsuarioCofradias().isEmpty()) {
+                    // 2. Obtenemos la cofradía activa del usuario
                     UsuarioCofradia primeraAsociacion = u.getUsuarioCofradias().iterator().next();
+                    Long cofradiaId = primeraAsociacion.getCofradia().getId();
+                    
                     model.addAttribute("cofradia", primeraAsociacion.getCofradia());
                     model.addAttribute("rolUsuario", primeraAsociacion.getRol().getDescripcion());
+
+                    // 3. ¡AQUÍ PASAMOS EL ID! Filtramos hermanos por esta cofradía
+                    hermanos = hermanoService.listarPorCofradia(cofradiaId);
                 }
-                model.addAttribute("usuarioLogueado", u.getUsuario());
-            });
+            }
         }
-
-        List<Hermano> hermanos = hermanoService.listarTodos();
-        model.addAttribute("totalHermanos", hermanos.size());
-
-        // --- CORRECCIÓN DE LOS MAPAS PARA LOS GRÁFICOS ---
         
-        // 1. Por Estado (usamos getDescripcion())
+        model.addAttribute("totalHermanos", hermanos.size());
+        
+        //Por Estado
         Map<String, Integer> hermanosPorEstado = hermanos.stream()
                 .map(h -> h.getEstado() != null ? h.getEstado().getCodigoVisual() : "Sin Estado")
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.collectingAndThen(Collectors.counting(), Long::intValue)));
 
-        // 2. Por Forma de Pago (usamos getDescripcion())
+        //Por Forma de Pago
         Map<String, Integer> hermanosPorFormaPago = hermanos.stream()
                 .map(h -> h.getFormaPago() != null ? h.getFormaPago().getCodigoVisual() : "Sin Forma de Pago")
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.collectingAndThen(Collectors.counting(), Long::intValue)));
 
-        // 3. Por Forma de Comunicación (usamos getDescripcion())
+        //Por Forma de Comunicación
         Map<String, Integer> hermanosPorFormaComunicacion = hermanos.stream()
                 .map(h -> h.getFormaComunicacion() != null ? h.getFormaComunicacion().getCodigoVisual() : "Sin Comunicación")
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.collectingAndThen(Collectors.counting(), Long::intValue)));

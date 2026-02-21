@@ -16,3 +16,7 @@ spring:
         envers:
           audit_table_suffix: _aud  # Esto es por defecto, pero mejor asegurar
           revision_field_name: rev_id
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
