@@ -35,11 +35,17 @@
             
             <div class="charts-grid">
                 <div class="chart-item">
-                    <h6>Estado de Hermanos</h6>
-                    <div class="canvas-wrapper">
-                        <canvas id="chartEstado"></canvas>
-                    </div>
-                </div>
+				    <h6>Situación de Hermanos</h6>
+				    <div class="canvas-wrapper">
+				        <canvas id="chartSituacion"></canvas>
+				    </div>
+				</div>
+				<div class="chart-item">
+				    <h6>Estado de Pago</h6>
+				    <div class="canvas-wrapper">
+				        <canvas id="chartSituacionPago"></canvas>
+				    </div>
+				</div>
                 <div class="chart-item">
                     <h6>Formas de Pago</h6>
                     <div class="canvas-wrapper">
@@ -61,47 +67,50 @@
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <script th:inline="javascript">
-    // Función para limpiar etiquetas raras de Java
-    function cleanLabels(dataMap) {
-        const clean = {};
-        if (!dataMap) return clean;
-        Object.keys(dataMap).forEach(key => {
-            let newKey = key;
-            // Si la clave parece un objeto de Java (tiene @), le ponemos un nombre genérico
-            if (key.includes('@')) newKey = "Dato " + Math.floor(Math.random()*100);
-            clean[newKey] = dataMap[key];
-        });
-        return clean;
-    }
+   <script th:inline="javascript">
+    const dataSituacion     = /*[[${hermanosPorSituacion}]]*/ {};
+    const dataSituacionPago = /*[[${hermanosPorSituacionPago}]]*/ {};
+    const dataPago          = /*[[${hermanosPorFormaPago}]]*/ {};
+    const dataComunicacion  = /*[[${hermanosPorFormaComunicacion}]]*/ {};
 
-    // 1. Recogemos los datos de Thymeleaf
-    const rawEstado = /*[[${hermanosPorEstado}]]*/ {};
-    const rawPago = /*[[${hermanosPorFormaPago}]]*/ {};
-    const rawComunicacion = /*[[${hermanosPorFormaComunicacion}]]*/ {};
+    const coloresSituacion = {
+        'Activo':    '#2ecc71',
+        'Baja':      '#e74c3c',
+        'Fallecido': '#f39c12'
+    };
+    const coloresSituacionPago = {
+        'Al día':  '#2ecc71',
+        'No pagado':  '#e74c3c',
+        'Exento':  '#f39c12'
+    };
+    const coloresPago = {
+        'Efectivo':      '#f39c12',
+        'Domiciliación': '#e74c3c',
+        'Transferencia': '#2ecc71'
+    };
+    const coloresComunicacion = {
+        'Email':     '#f39c12',
+        'Whatsapp':  '#2ecc71',
+        'Carta postal':     '#e74c3c'
+    };
 
-    // 2. Limpiamos los datos para que las etiquetas salgan bien
-    const dataEstado = cleanLabels(rawEstado);
-    const dataPago = cleanLabels(rawPago);
-    const dataComunicacion = cleanLabels(rawComunicacion);
-
-    // Colores corporativos
-    const color1 = getComputedStyle(document.documentElement).getPropertyValue('--cp1').trim() || '#2c3e50';
-    const color2 = getComputedStyle(document.documentElement).getPropertyValue('--cp2').trim() || '#e74c3c';
-    const palette = [color1, color2, '#00b894', '#fdcb6e', '#6c5ce7', '#fab1a0', '#0984e3'];
-
-    function createChart(id, dataMap) {
+    function createChart(id, dataMap, colorMap) {
         const canvas = document.getElementById(id);
         if (!canvas) return;
-        
-        const ctx = canvas.getContext('2d');
-        new Chart(ctx, {
-            type: 'pie', // <--- AQUÍ: TARTA (PIE)
+
+        const labels = Object.keys(dataMap);
+        const values = Object.values(dataMap);
+
+        // Asigna color por nombre exacto
+        const backgroundColors = labels.map(label => colorMap[label] || '#bdc3c7');
+
+        new Chart(canvas.getContext('2d'), {
+            type: 'pie',
             data: {
-                labels: Object.keys(dataMap),
+                labels: labels,
                 datasets: [{
-                    data: Object.values(dataMap),
-                    backgroundColor: palette,
+                    data: values,
+                    backgroundColor: backgroundColors,  // <-- AQUÍ el fix
                     borderWidth: 2,
                     borderColor: '#ffffff',
                     hoverOffset: 15
@@ -109,26 +118,26 @@
             },
             options: {
                 maintainAspectRatio: false,
-                // cutout: '70%', // <--- ELIMINADO: Las tartas no llevan cutout
                 plugins: {
-                    legend: { 
-                        position: 'bottom', 
-                        labels: { 
-                            padding: 15, 
-                            usePointStyle: true, 
-                            font: { size: 11 } 
-                        } 
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+                            font: { size: 12, weight: 'bold' },
+                            color: '#333'
+                        }
                     }
                 }
             }
         });
     }
 
-    // Dibujamos al cargar la página
     window.onload = () => {
-        createChart('chartEstado', dataEstado);
-        createChart('chartPago', dataPago);
-        createChart('chartComunicacion', dataComunicacion);
+        createChart('chartSituacion',     dataSituacion,     coloresSituacion);
+        createChart('chartSituacionPago', dataSituacionPago, coloresSituacionPago);
+        createChart('chartPago',          dataPago,          coloresPago);
+        createChart('chartComunicacion',  dataComunicacion,  coloresComunicacion);
     };
 </script>
 </body>

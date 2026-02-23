@@ -54,9 +54,14 @@ public class InicioController {
         
         model.addAttribute("totalHermanos", hermanos.size());
         
-        //Por Estado
-        Map<String, Integer> hermanosPorEstado = hermanos.stream()
-                .map(h -> h.getEstado() != null ? h.getEstado().getCodigoVisual() : "Sin Estado")
+        //Por Situacion
+        Map<String, Integer> hermanosPorSituacion = hermanos.stream()
+                .map(h -> h.getSituacion() != null ? h.getSituacion().getCodigoVisual() : "Sin Situación")
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.collectingAndThen(Collectors.counting(), Long::intValue)));
+
+      //Por Situacion Pago
+        Map<String, Integer> hermanosPorSituacionPago = hermanos.stream()
+                .map(h -> h.getSituacionPago() != null ? h.getSituacionPago().getCodigoVisual() : "Sin Estado de Pago")
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.collectingAndThen(Collectors.counting(), Long::intValue)));
 
         //Por Forma de Pago
@@ -69,7 +74,8 @@ public class InicioController {
                 .map(h -> h.getFormaComunicacion() != null ? h.getFormaComunicacion().getCodigoVisual() : "Sin Comunicación")
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.collectingAndThen(Collectors.counting(), Long::intValue)));
 
-        model.addAttribute("hermanosPorEstado", hermanosPorEstado);
+        model.addAttribute("hermanosPorSituacion", hermanosPorSituacion);
+        model.addAttribute("hermanosPorSituacionPago", hermanosPorSituacionPago);
         model.addAttribute("hermanosPorFormaPago", hermanosPorFormaPago);
         model.addAttribute("hermanosPorFormaComunicacion", hermanosPorFormaComunicacion);
 

@@ -1,4 +1,4 @@
-package es.cofradia.gestioncofradia.modulo.autenticacion.infraestructa.controller;
+package es.cofradia.gestioncofradia.modulo.autenticacion.infraestructura.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

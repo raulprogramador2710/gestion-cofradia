@@ -1,4 +1,4 @@
-package es.cofradia.gestioncofradia.modulo.usuarios.maestras.infraestructu.repository;
+package es.cofradia.gestioncofradia.modulo.usuarios.maestras.infraestructura.repository;
 
 import java.util.Optional;
 

@@ -37,21 +37,25 @@ public interface HermanoRepository extends JpaRepository<Hermano, Long> {
     Optional<Hermano> findByDniAndCofradiaId(String dni, Long cofradiaId);
     
     // Trae los hermanos de una cofradía ordenados por numHermano.
-    @EntityGraph(attributePaths = {"estado"}) // opcional pero evita problemas LZY al mostrar estado
+    @EntityGraph(attributePaths = {"situacion", "situacionPago", "formaPago", "formaComunicacion"})
     List<Hermano> findByCofradiaIdOrderByNumHermanoAsc(Long cofradiaId);
     
     @Query("SELECT COALESCE(MAX(h.numHermano), 0) FROM Hermano h WHERE h.cofradia.id = :cofradiaId")
     Integer findMaxNumHermanoByCofradiaId(@Param("cofradiaId") Long cofradiaId);
     
-    @EntityGraph(attributePaths = {"estado"})
-    @Query("SELECT h FROM Hermano h WHERE h.cofradia.id = :cofradiaId "
-    	     + "AND (:filtroNombre IS NULL OR LOWER(h.nombre) LIKE LOWER(CAST(CONCAT('%', :filtroNombre, '%') AS string)) "
-    	     + "OR LOWER(h.apellidos) LIKE LOWER(CAST(CONCAT('%', :filtroNombre, '%') AS string))) "
-    	     + "AND (:filtroDni IS NULL OR LOWER(h.dni) LIKE LOWER(CAST(CONCAT('%', :filtroDni, '%') AS string)))")
-    	Page<Hermano> buscarPorCofradiaConFiltros(
-    	    @Param("cofradiaId") Long cofradiaId, 
-    	    @Param("filtroNombre") String filtroNombre, 
-    	    @Param("filtroDni") String filtroDni, 
-    	    Pageable pageable);
+    @EntityGraph(attributePaths = {"situacion", "situacionPago", "formaPago", "formaComunicacion"})
+    @Query("""
+        SELECT h FROM Hermano h 
+        WHERE h.cofradia.id = :cofradiaId
+          AND (:filtroNombre IS NULL OR LOWER(h.nombre) LIKE LOWER(CONCAT('%', CAST(:filtroNombre AS string), '%'))
+               OR LOWER(h.apellidos) LIKE LOWER(CONCAT('%', CAST(:filtroNombre AS string), '%')))
+          AND (:filtroDni IS NULL OR LOWER(h.dni) LIKE LOWER(CONCAT('%', CAST(:filtroDni AS string), '%')))
+        """)
+    Page<Hermano> buscarPorCofradiaConFiltros(
+        @Param("cofradiaId") Long cofradiaId,
+        @Param("filtroNombre") String filtroNombre,
+        @Param("filtroDni") String filtroDni,
+        Pageable pageable
+    );
     
 }

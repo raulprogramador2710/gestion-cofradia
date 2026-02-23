@@ -1,7 +1,7 @@
 package es.cofradia.gestioncofradia.config;
 
 import java.time.LocalDate;
-import java.util.Optional;
+import java.util.List;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,253 +11,217 @@ import es.cofradia.gestioncofradia.modulo.cofradias.dominio.Cofradia;
 import es.cofradia.gestioncofradia.modulo.cofradias.infraestructura.repository.CofradiaRepository;
 import es.cofradia.gestioncofradia.modulo.hermanos.dominio.Hermano;
 import es.cofradia.gestioncofradia.modulo.hermanos.infraestructura.repository.HermanoRepository;
-import es.cofradia.gestioncofradia.modulo.maestras.dominio.EstadoHermano;
 import es.cofradia.gestioncofradia.modulo.maestras.dominio.FormaComunicacion;
 import es.cofradia.gestioncofradia.modulo.maestras.dominio.FormaPago;
-import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.EstadoHermanoRepository;
+import es.cofradia.gestioncofradia.modulo.maestras.dominio.SituacionHermano;
+import es.cofradia.gestioncofradia.modulo.maestras.dominio.SituacionPagoHermano;
 import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.FormaComunicacionRepository;
 import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.FormaPagoRepository;
+import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.SituacionHermanoRepository;
+import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.SituacionPagoHermanoRepository;
+import es.cofradia.gestioncofradia.modulo.salidas.dominio.TipoParticipacion;
+import es.cofradia.gestioncofradia.modulo.salidas.infraestructura.repository.TipoParticipacionRepository;
 import es.cofradia.gestioncofradia.modulo.usuarios.dominio.Usuario;
 import es.cofradia.gestioncofradia.modulo.usuarios.dominio.UsuarioCofradia;
 import es.cofradia.gestioncofradia.modulo.usuarios.infraestructura.repository.UsuarioCofradiaRepository;
 import es.cofradia.gestioncofradia.modulo.usuarios.infraestructura.repository.UsuarioRepository;
 import es.cofradia.gestioncofradia.modulo.usuarios.maestras.dominio.RolCofradia;
-import es.cofradia.gestioncofradia.modulo.usuarios.maestras.infraestructu.repository.RolCofradiaRepository;
+import es.cofradia.gestioncofradia.modulo.usuarios.maestras.infraestructura.repository.RolCofradiaRepository;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class DataLoader implements CommandLineRunner {
 
-	private final CofradiaRepository cofradiaRepo;
+    private final CofradiaRepository cofradiaRepo;
     private final UsuarioRepository usuarioRepo;
     private final HermanoRepository hermanoRepo;
     private final UsuarioCofradiaRepository usuarioCofradiaRepo;
-    private final EstadoHermanoRepository estadoRepo;
+    private final SituacionHermanoRepository situacionRepo;
+    private final SituacionPagoHermanoRepository situacionPagoRepo;
     private final FormaPagoRepository pagoRepo;
     private final FormaComunicacionRepository comunicacionRepo;
     private final RolCofradiaRepository rolRepo;
+    private final TipoParticipacionRepository tipoParticipacionRepo;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) throws Exception {
-        
-    	Cofradia expiracion = cofradiaRepo.findByNombre("Cofradia de la Expiración")
-                .orElseGet(() -> {
-                    Cofradia c = new Cofradia();
-                    c.setNombre("Cofradia de la Expiración");
-                    c.setNombreCompleto("Cofradia del Santísimo Cristo de la Expiración, Señor de las Penas, y María Santísima de los Dolores");
-                    c.setCif("G12345678");
-                    c.setSlug("expiracion");
-                    c.setColorPrincipal1("#000000");
-                    c.setColorPrincipal2("#ffffff");
-                    c.setColorSecundario("#ffd700");
-                    c.setUsarColoresPersonalizados(Boolean.TRUE);
-                    return cofradiaRepo.save(c);
-                });
+        cargarCofradias();
+        cargarRoles();
+        cargarMaestras();
+        cargarUsuarios();
+        cargarHermanosDePrueba();
+    }
 
-        Cofradia prendimiento = cofradiaRepo.findByNombre("Hermandad del prendimiento")
-                .orElseGet(() -> {
-                    Cofradia c = new Cofradia();
-                    c.setNombre("Hermandad del prendimiento");
-                    c.setNombreCompleto("Hermandad del prendimiento");
-                    c.setCif("G12345677");
-                    c.setSlug("prendimiento");
-                    c.setColorPrincipal1("#800040");
-                    c.setColorPrincipal2("#FDFBD4");
-                    c.setColorSecundario(null);
-                    c.setUsarColoresPersonalizados(Boolean.TRUE);
-                    return cofradiaRepo.save(c);
-                });
+    // =========================================================
+    // BLOQUE 1: COFRADÍAS
+    // =========================================================
+    private void cargarCofradias() {
+        cofradiaRepo.findByNombre("Cofradia de la Expiración")
+                .orElseGet(() -> cofradiaRepo.save(Cofradia.builder()
+                        .nombre("Cofradia de la Expiración")
+                        .nombreCompleto("Cofradia del Santísimo Cristo de la Expiración, Señor de las Penas, y María Santísima de los Dolores")
+                        .cif("G12345678")
+                        .slug("expiracion")
+                        .colorPrincipal1("#000000")
+                        .colorPrincipal2("#ffffff")
+                        .colorSecundario("#ffd700")
+                        .usarColoresPersonalizados(Boolean.TRUE)
+                        .build()));
+
+        cofradiaRepo.findByNombre("Hermandad del prendimiento")
+                .orElseGet(() -> cofradiaRepo.save(Cofradia.builder()
+                        .nombre("Hermandad del prendimiento")
+                        .nombreCompleto("Hermandad del prendimiento")
+                        .cif("G12345677")
+                        .slug("prendimiento")
+                        .colorPrincipal1("#800040")
+                        .colorPrincipal2("#FDFBD4")
+                        .usarColoresPersonalizados(Boolean.TRUE)
+                        .build()));
 
         System.out.println(">> Cofradías aseguradas.");
-        
-        // --- ROLES MAESTROS (idempotente por codigo) ---
+    }
+
+    // =========================================================
+    // BLOQUE 2: ROLES
+    // =========================================================
+    private void cargarRoles() {
         createRolSiNoExiste("ADMIN", "Administrador");
-        createRolSiNoExiste("HM", "Hermano mayor");
-        createRolSiNoExiste("TES", "Tesorero");
-        createRolSiNoExiste("SEC", "Secretario");
-        createRolSiNoExiste("RRSS", "Redes sociales");
-        createRolSiNoExiste("HER", "Hermano");
+        createRolSiNoExiste("HM",    "Hermano mayor");
+        createRolSiNoExiste("TES",   "Tesorero");
+        createRolSiNoExiste("SEC",   "Secretario");
+        createRolSiNoExiste("RRSS",  "Redes sociales");
+        createRolSiNoExiste("HER",   "Hermano");
         System.out.println(">> Roles asegurados.");
-        
-        
+    }
 
-        // 2. Crear Usuario ADMIN inicial (si no existe)
-     // Admin Expiracion
-        String userExp = "expiracion_admin";
-        if (usuarioRepo.findByUsuario(userExp).isEmpty()) {
-            Usuario adminExp = new Usuario();
-            adminExp.setUsuario(userExp);
-            adminExp.setClave(passwordEncoder.encode("Frakyx_es10"));
-            adminExp = usuarioRepo.save(adminExp);
+    // =========================================================
+    // BLOQUE 3: MAESTRAS
+    // =========================================================
+    private void cargarMaestras() {
 
-            RolCofradia rolPres = rolRepo.findByCodigo("ADMIN")
-                    .orElseThrow(() -> new IllegalStateException("Role ADMIN no existe"));
-
-            UsuarioCofradia uc1 = UsuarioCofradia.builder()
-                    .usuario(adminExp)
-                    .cofradia(expiracion)
-                    .rol(rolPres)
-                    .build();
-            usuarioCofradiaRepo.save(uc1);
+        if (situacionRepo.count() == 0) {
+            situacionRepo.save(SituacionHermano.builder().codigo("ACTIVO").descripcion("Hermano en activo").codigoVisual("Activo").build());
+            situacionRepo.save(SituacionHermano.builder().codigo("BAJA").descripcion("Hermano que ha solicitado la baja").codigoVisual("Baja").build());
+            situacionRepo.save(SituacionHermano.builder().codigo("FALLE").descripcion("Hermano fallecido").codigoVisual("Fallecido").build());
+            System.out.println(">> Situaciones de hermano cargadas.");
         }
 
-        // Admin Prendimiento
-        String userPre = "prendimiento_admin";
-        if (usuarioRepo.findByUsuario(userPre).isEmpty()) {
-            Usuario adminPre = new Usuario();
-            adminPre.setUsuario(userPre);
-            adminPre.setClave(passwordEncoder.encode("Frakyx_es10"));
-            adminPre = usuarioRepo.save(adminPre);
-
-            RolCofradia rolPres = rolRepo.findByCodigo("ADMIN")
-                    .orElseThrow(() -> new IllegalStateException("Role ADMIN no existe"));
-
-            UsuarioCofradia uc2 = UsuarioCofradia.builder()
-                    .usuario(adminPre)
-                    .cofradia(prendimiento)
-                    .rol(rolPres)
-                    .build();
-            usuarioCofradiaRepo.save(uc2);
-        }
-        
-        // usuario raul
-        String userRaul = "RAUGONBER";
-        if (usuarioRepo.findByUsuario(userRaul).isEmpty()) {
-            Usuario hermanoRaul = new Usuario();
-            hermanoRaul.setUsuario(userRaul);
-            hermanoRaul.setClave(passwordEncoder.encode("Temporal01"));
-            hermanoRaul = usuarioRepo.save(hermanoRaul);
-
-            RolCofradia rolPres = rolRepo.findByCodigo("HER")
-                    .orElseThrow(() -> new IllegalStateException("Role Hermano no existe"));
-
-            UsuarioCofradia uc2 = UsuarioCofradia.builder()
-                    .usuario(hermanoRaul)
-                    .cofradia(expiracion)
-                    .rol(rolPres)
-                    .build();
-            usuarioCofradiaRepo.save(uc2);
+        if (situacionPagoRepo.count() == 0) {
+            situacionPagoRepo.save(SituacionPagoHermano.builder().codigo("AL_DIA").descripcion("Sin cuotas pendientes").codigoVisual("Al día").build());
+            situacionPagoRepo.save(SituacionPagoHermano.builder().codigo("DEUDOR").descripcion("Con cuotas pendientes").codigoVisual("No pagado").build());
+            situacionPagoRepo.save(SituacionPagoHermano.builder().codigo("EXENTO").descripcion("Exento de pago por protocolo").codigoVisual("Exento").build());
+            System.out.println(">> Situaciones de pago cargadas.");
         }
 
-        System.out.println(">> Usuarios administradores creados/asociados.");
-
-        // 3. Cargar Estados
-        if (estadoRepo.count() == 0) {
-            saveEstado("ACTIVO", "Hermano que esta al corriente de pago", "Activo");
-            saveEstado("FALLECIDO_ACTIVO", "Hermano fallecido que esta al corriente de pago", "Fallecido activo");
-            saveEstado("BAJA", "Baja definitiva", "Baja");
-            saveEstado("NO_PAGADO", "Hermano que no ha pagado la cuota actual", "No pagado");
-            saveEstado("FALLECIDO_NO_PAGADO", "Hermano fallecido que no ha pagado la cuota actual", "Fallecido no pagado");
-            saveEstado("FALLECIDO", "Hermano que ha fallecido", "Fallecido");
-            System.out.println(">> Estados cargados.");
-        }
-
-        // 4. Cargar Formas de Pago
         if (pagoRepo.count() == 0) {
             savePago("TRANSFERENCIA", "Transferencia bancaria", "Transferencia");
             savePago("DOMICILIACION", "Domiciliación bancaria", "Domiciliación");
-            savePago("EFECTIVO", "Pago en metálico", "Efectivo");
+            savePago("EFECTIVO",      "Pago en metálico",       "Efectivo");
             System.out.println(">> Formas de pago cargadas.");
         }
 
-        // 5. Cargar Formas de Comunicación
         if (comunicacionRepo.count() == 0) {
             saveComunicacion("WHATSAPP", "Mensaje por el grupo oficial", "Whatsapp");
-            saveComunicacion("EMAIL", "Correo electrónico", "Email");
-            saveComunicacion("POSTAL", "Carta postal", "Carta postal");
+            saveComunicacion("EMAIL",    "Correo electrónico",           "Email");
+            saveComunicacion("POSTAL",   "Carta postal",                 "Carta postal");
             System.out.println(">> Formas de comunicación cargadas.");
         }
-        
-        
-        
-     // --- CREAR UN HERMANO DE PRUEBA EN CADA COFRADÍA ---
-        String dniPrueba = "54119089C";
 
-        // Hermano en Expiración
-        Cofradia exp = cofradiaRepo.findByNombre("Cofradia de la Expiración").orElseThrow();
-        if (hermanoRepo.findByDniAndCofradiaId(dniPrueba, exp.getId()).isEmpty()) {
-            EstadoHermano estadoActivo = estadoRepo.findByCodigo("ACTIVO").orElseThrow();
-            FormaPago pagoTranseferencia = pagoRepo.findByCodigo("TRANSFERENCIA").orElseThrow();
-            FormaComunicacion comWhatsapp = comunicacionRepo.findByCodigo("WHATSAPP").orElseThrow();
-
-            Hermano hermano = new Hermano();
-            hermano.setCofradia(exp);
-            hermano.setEstado(estadoActivo);
-            hermano.setFormaPago(pagoTranseferencia);
-            hermano.setFormaComunicacion(comWhatsapp);
-            
-            hermano.setNumHermano(1);
-            hermano.setDni(dniPrueba);
-            hermano.setNombre("Raúl");
-            hermano.setApellidos("González Bernal");
-            hermano.setEmail("raul.27101995@gmail.com");
-            hermano.setTelefono("722521995");
-            hermano.setDireccion("Calle Isaac Peral 4 2F");
-            hermano.setLocalidad("Adra");
-            hermano.setFechaNacimiento(LocalDate.of(1995, 10, 27));
-            hermano.setFechaInicioCofradia(2014);
-            hermano.setFechaUltimoPago(2026);
-            hermano.setIban("ES123456789132456789");
-            hermano.setLopd(true);
-
-            hermanoRepo.save(hermano);
-            System.out.println(">> Hermano de prueba creado en Expiración.");
+        if (tipoParticipacionRepo.count() == 0) {
+            tipoParticipacionRepo.saveAll(List.of(
+                TipoParticipacion.builder().nombre("Nazareno")  .descripcion("Sale en la procesión como nazareno").build(),
+                TipoParticipacion.builder().nombre("Portador")  .descripcion("Porta el paso").build(),
+                TipoParticipacion.builder().nombre("Mantilla")  .descripcion("Sale en la procesión con mantilla").build(),
+                TipoParticipacion.builder().nombre("Acólito")   .descripcion("Acompaña al clero").build(),
+                TipoParticipacion.builder().nombre("Monaguillo").descripcion("Monaguillo de la procesión").build()
+            ));
+            System.out.println(">> Tipos de participación cargados.");
         }
-
-        // Hermano en Prendimiento
-        Cofradia pre = cofradiaRepo.findByNombre("Hermandad del prendimiento").orElseThrow();
-        if (hermanoRepo.findByDniAndCofradiaId(dniPrueba, pre.getId()).isEmpty()) {
-            EstadoHermano estadoActivo = estadoRepo.findByCodigo("ACTIVO").orElseThrow();
-            FormaPago pagoTranseferencia = pagoRepo.findByCodigo("TRANSFERENCIA").orElseThrow();
-            FormaComunicacion comWhatsapp = comunicacionRepo.findByCodigo("WHATSAPP").orElseThrow();
-
-            Hermano hermano = new Hermano();
-            hermano.setCofradia(pre);
-            hermano.setEstado(estadoActivo);
-            hermano.setFormaPago(pagoTranseferencia);
-            hermano.setFormaComunicacion(comWhatsapp);
-            
-            hermano.setNumHermano(1);
-            hermano.setDni(dniPrueba);
-            hermano.setNombre("Raúl");
-            hermano.setApellidos("González Bernal");
-            hermano.setEmail("raul.27101995@gmail.com");
-            hermano.setTelefono("722521995");
-            hermano.setDireccion("Calle Isaac Peral 4 2F");
-            hermano.setLocalidad("Adra");
-            hermano.setFechaNacimiento(LocalDate.of(1995, 10, 27));
-            hermano.setFechaInicioCofradia(2023);
-            hermano.setFechaUltimoPago(2026);
-            hermano.setIban("ES123456789132456789");
-            hermano.setLopd(true);
-
-            hermanoRepo.save(hermano);
-            System.out.println(">> Hermano de prueba creado en Prendimiento.");
-        }
-        
-        
-        
     }
 
+    // =========================================================
+    // BLOQUE 4: USUARIOS
+    // =========================================================
+    private void cargarUsuarios() {
+        Cofradia expiracion   = cofradiaRepo.findByNombre("Cofradia de la Expiración").orElseThrow();
+        Cofradia prendimiento = cofradiaRepo.findByNombre("Hermandad del prendimiento").orElseThrow();
+
+        crearUsuarioSiNoExiste("expiracion_admin",   "Frakyx_es10", expiracion,   "ADMIN");
+        crearUsuarioSiNoExiste("prendimiento_admin", "Frakyx_es10", prendimiento, "ADMIN");
+        crearUsuarioSiNoExiste("RAUGONBER",          "Temporal01",  expiracion,   "HER");
+
+        System.out.println(">> Usuarios creados/asociados.");
+    }
+
+    // =========================================================
+    // BLOQUE 5: DATOS DE PRUEBA
+    // =========================================================
+    private void cargarHermanosDePrueba() {
+        Cofradia expiracion   = cofradiaRepo.findByNombre("Cofradia de la Expiración").orElseThrow();
+        Cofradia prendimiento = cofradiaRepo.findByNombre("Hermandad del prendimiento").orElseThrow();
+
+        crearHermanoDePrueba(expiracion,   "54119089C", 1, 2014);
+        crearHermanoDePrueba(prendimiento, "54119089C", 1, 2023);
+
+        System.out.println(">> Hermanos de prueba asegurados.");
+    }
+
+    // =========================================================
+    // MÉTODOS PRIVADOS DE APOYO
+    // =========================================================
     private void createRolSiNoExiste(String codigo, String descripcion) {
-        Optional<RolCofradia> existing = rolRepo.findByCodigo(codigo);
-        if (existing.isEmpty()) {
-            RolCofradia r = RolCofradia.builder()
-                    .codigo(codigo)
-                    .descripcion(descripcion)
-                    .build();
-            rolRepo.save(r);
+        if (rolRepo.findByCodigo(codigo).isEmpty()) {
+            rolRepo.save(RolCofradia.builder().codigo(codigo).descripcion(descripcion).build());
         }
     }
 
-    private void saveEstado(String cod, String desc, String codVis) {
-        EstadoHermano e = new EstadoHermano();
-        e.setCodigo(cod);
-        e.setDescripcion(desc);
-        e.setCodigoVisual(codVis);
-        estadoRepo.save(e);
+    private void crearUsuarioSiNoExiste(String username, String clave, Cofradia cofradia, String codigoRol) {
+        if (usuarioRepo.findByUsuario(username).isEmpty()) {
+            Usuario usuario = new Usuario();
+            usuario.setUsuario(username);
+            usuario.setClave(passwordEncoder.encode(clave));
+            usuario = usuarioRepo.save(usuario);
+
+            RolCofradia rol = rolRepo.findByCodigo(codigoRol)
+                    .orElseThrow(() -> new IllegalStateException("Rol no encontrado: " + codigoRol));
+
+            usuarioCofradiaRepo.save(UsuarioCofradia.builder()
+                    .usuario(usuario)
+                    .cofradia(cofradia)
+                    .rol(rol)
+                    .build());
+        }
+    }
+
+    private void crearHermanoDePrueba(Cofradia cofradia, String dni, Integer numHermano, Integer anioInicio) {
+        if (hermanoRepo.findByDniAndCofradiaId(dni, cofradia.getId()).isEmpty()) {
+            SituacionHermano activo    = situacionRepo.findByCodigo("ACTIVO").orElseThrow();
+            SituacionPagoHermano alDia = situacionPagoRepo.findByCodigo("AL_DIA").orElseThrow();
+
+            hermanoRepo.save(Hermano.builder()
+                    .cofradia(cofradia)
+                    .situacion(activo)
+                    .situacionPago(alDia)
+                    .formaPago(pagoRepo.findByCodigo("TRANSFERENCIA").orElseThrow())
+                    .formaComunicacion(comunicacionRepo.findByCodigo("WHATSAPP").orElseThrow())
+                    .numHermano(numHermano)
+                    .dni(dni)
+                    .nombre("Raúl")
+                    .apellidos("González Bernal")
+                    .email("raul.27101995@gmail.com")
+                    .telefono("722521995")
+                    .direccion("Calle Isaac Peral 4 2F")
+                    .localidad("Adra")
+                    .fechaNacimiento(LocalDate.of(1995, 10, 27))
+                    .fechaInicioCofradia(anioInicio)
+                    .fechaUltimoPago(2026)
+                    .iban("ES123456789132456789")
+                    .lopd(true)
+                    .build());
+        }
     }
 
     private void savePago(String cod, String desc, String codVis) {

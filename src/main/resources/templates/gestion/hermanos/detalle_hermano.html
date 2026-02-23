@@ -1,40 +1,215 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{gestion/base :: head('Ficha Hermano')}"></head>
+<head th:replace="~{gestion/base :: head(${hermano.nombre})}"></head>
+<style>
+    .text-fallecido { color: #795548 !important; }
+    .bg-fallecido { background-color: #795548 !important; color: white; }
+</style>
 <body>
+
 <div th:replace="~{gestion/base :: navbar}"></div>
 
 <main class="main-content container py-4">
-    <div class="card shadow">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0 fw-bold">Ficha de Hermano</h5>
-            <div>
-                <a th:href="@{/gestion/hermanos}" class="btn btn-secondary btn-sm">Volver</a>
+
+    <!-- HEADER DEL HERMANO -->
+    <div class="card shadow-sm mb-4 border-0 rounded-4">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-4">
+		    <!-- Avatar circular con iniciales (muy moderno) -->
+		    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" 
+		         style="width: 64px; height: 64px; font-size: 1.5rem; min-width: 64px;"
+		         th:text="${#strings.substring(hermano.nombre,0,1) + #strings.substring(hermano.apellidos,0,1)}">
+		        JD
+		    </div>
+		
+		    <div>
+		        <!-- Nombre con tipografía más ligera pero grande -->
+		        <h2 class="fw-light mb-1 text-dark" style="letter-spacing: -0.5px;">
+		            <span class="fw-bold" th:text="${hermano.apellidos}">Apellidos</span>, 
+		            <span th:text="${hermano.nombre}">Nombre</span>
+		        </h2>
+		        
+		        <!-- Línea de metadatos con separadores sutiles -->
+		        <div class="d-flex align-items-center gap-3 text-muted small">
+		            <div class="d-flex align-items-center gap-1">
+		                <i class="bi bi-hash opacity-50"></i>
+		                <span>ID Hermano: <span class="fw-bold text-dark" th:text="${hermano.numHermano}">001</span></span>
+		            </div>
+		        </div>
+		    </div>
+		</div>
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1" title="Enviar Notificación">
+                    <i class="fas fa-envelope"></i> Notificar
+                </button>
+                <a th:href="@{/gestion/hermanos}" class="btn btn-outline-secondary btn-sm">Volver</a>
                 <a th:href="@{/gestion/hermanos/editar/{id}(id=${hermano.id})}" class="btn btn-primary btn-sm">Editar</a>
             </div>
         </div>
-        <div class="card-body">
-            <h2 class="page-title mb-4" th:text="${hermano.apellidos + ', ' + hermano.nombre}">García, José</h2>
-            <dl class="row">
-                <dt class="col-sm-3">Nº Hermano</dt><dd class="col-sm-9" th:text="${hermano.numHermano}">1</dd>
-                <dt class="col-sm-3">DNI</dt><dd class="col-sm-9" th:text="${hermano.dni}">12345678Z</dd>
-                <dt class="col-sm-3">Fecha inicio cofradía</dt><dd class="col-sm-9" th:text="${hermano.fechaInicioCofradia}">2015</dd>
-                <dt class="col-sm-3">Fecha último pago</dt><dd class="col-sm-9" th:text="${hermano.fechaUltimoPago}">2015</dd>
-                <dt class="col-sm-3">Fecha Nacimiento</dt><dd class="col-sm-9" th:text="${hermano.fechaNacimiento != null ? #temporals.format(hermano.fechaNacimiento, 'dd/MM/yyyy') : '-'}">01/01/1970</dd>
-                <dt class="col-sm-3">Email</dt><dd class="col-sm-9" th:text="${hermano.email}">ejemplo@ejemplo.com</dd>
-                <dt class="col-sm-3">Estado</dt><dd class="col-sm-9" th:text="${hermano.estado != null ? hermano.estado.codigoVisual : '-'}">Activo</dd>
-                <dt class="col-sm-3">Forma de Pago</dt><dd class="col-sm-9" th:text="${hermano.formaPago != null ? hermano.formaPago.codigoVisual : '-'}">Transferencia</dd>
-                <dt class="col-sm-3">Forma de Comunicación</dt><dd class="col-sm-9" th:text="${hermano.formaComunicacion != null ? hermano.formaComunicacion.codigoVisual : '-'}">Email</dd>
-                <dt class="col-sm-3">Dirección</dt><dd class="col-sm-9" th:text="${hermano.direccion}">C/ Ejemplo 1</dd>
-                <dt class="col-sm-3">Localidad</dt><dd class="col-sm-9" th:text="${hermano.localidad}">Adra</dd>
-                <dt class="col-sm-3">Teléfono</dt><dd class="col-sm-9" th:text="${hermano.telefono}">600000000</dd>
-                <dt class="col-sm-3">IBAN</dt><dd class="col-sm-9" th:text="${hermano.iban}">ES00 0000 0000</dd>
-            </dl>
+    </div>
+
+    <div class="row">
+        <!-- COLUMNA IZQUIERDA: DATOS -->
+		<div class="col-lg-8">
+		
+		    <!-- 1. DATOS PERSONALES -->
+		    <div class="card shadow-sm border-0 rounded-4 mb-4">
+		        <div class="card-header bg-white py-3 border-bottom-0">
+		            <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-person-vcard me-2"></i>Datos Personales</h5>
+		        </div>
+		        <div class="card-body pt-0">
+		            <div class="row g-3">
+		            	<div class="col-md-3">
+		                    <label class="text-muted small">DNI / NIE</label>
+		                    <div class="fw-semibold" th:text="${hermano.dni}">-</div>
+		                </div>
+		                <div class="col-md-4">
+		                    <label class="text-muted small">Fecha de Nacimiento</label>
+		                    <div class="fw-semibold">
+		                        <span th:text="${hermano.fechaNacimiento != null ? #temporals.format(hermano.fechaNacimiento, 'dd/MM/yyyy') : '-'}"></span>
+		                        <small class="text-muted" th:if="${hermano.fechaNacimiento != null}"
+		                               th:text="${'(' + (hermano.esMayorDeEdad() ? 'Mayor de edad' : 'Menor de edad') + ')'}">
+		                        </small>
+		                    </div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+		
+		    <!-- 2. CONTACTO Y LOCALIZACIÓN -->
+		    <div class="card shadow-sm border-0 rounded-4 mb-4">
+		        <div class="card-header bg-white py-3 border-bottom-0">
+		            <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-geo-alt me-2"></i>Contacto y Localización</h5>
+		        </div>
+		        <div class="card-body pt-0">
+		            <div class="row g-3">
+		                <div class="col-md-7">
+		                    <label class="text-muted small">Dirección</label>
+		                    <div class="fw-semibold" th:text="${hermano.direccion ?: '-'}">-</div>
+		                </div>
+		                <div class="col-md-5">
+		                    <label class="text-muted small">Localidad</label>
+		                    <div class="fw-semibold" th:text="${hermano.localidad ?: '-'}">-</div>
+		                </div>
+		                <div class="col-md-3">
+		                    <label class="text-muted small">Teléfono</label>
+		                    <div class="fw-semibold" th:text="${hermano.telefono ?: '-'}">-</div>
+		                </div>
+		                <div class="col-md-5">
+		                    <label class="text-muted small">Email</label>
+		                    <div class="fw-semibold" th:text="${hermano.email ?: '-'}">-</div>
+		                </div>
+		                <div class="col-md-4">
+		                    <label class="text-muted small">Preferencia de Comunicación</label>
+		                    <div class="fw-semibold" th:text="${hermano.formaComunicacion != null ? hermano.formaComunicacion.codigoVisual : '-'}">-</div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+		
+		    <!-- 3. INFORMACIÓN DE PAGO -->
+		    <div class="card shadow-sm border-0 rounded-4 mb-4">
+		        <div class="card-header bg-white py-3 border-bottom-0">
+		            <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-credit-card me-2"></i>Información de Pago</h5>
+		        </div>
+		        <div class="card-body pt-0">
+		            <div class="row g-3">
+		                <div class="col-md-4">
+		                    <label class="text-muted small">Método de Pago</label>
+		                    <div class="fw-semibold" th:text="${hermano.formaPago != null ? hermano.formaPago.codigoVisual : '-'}">-</div>
+		                </div>
+		                <div class="col-md-4">
+		                    <label class="text-muted small">Último Pago</label>
+		                    <div class="fw-semibold" th:text="${hermano.fechaUltimoPago != null ? hermano.fechaUltimoPago : '-'}">-</div>
+		                </div>
+		                <div class="col-md-4">
+		                    <label class="text-muted small">Estado de Cuotas</label>
+		                    <div class="fw-semibold">
+		                        <span th:text="${hermano.situacionPago != null ? hermano.situacionPago.codigoVisual : '-'}"
+		                              th:classappend="${
+		                                hermano.situacionPago?.codigo == 'AL_DIA' ? 'text-success' :
+		                                (hermano.situacionPago?.codigo == 'DEUDOR' ? 'text-warning' : 'text-info')
+		                              }">
+		                        </span>
+		                    </div>
+		                </div>
+		                <div class="col-md-8">
+		                    <label class="text-muted small">IBAN</label>
+		                    <div class="fw-semibold" th:text="${hermano.iban ?: '-'}">-</div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+		
+		    <!-- 4. VIDA DE COFRADÍA -->
+		    <div class="card shadow-sm border-0 rounded-4 mb-4">
+		        <div class="card-header bg-white py-3 border-bottom-0">
+		            <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-church me-2"></i>Vida de Cofradía</h5>
+		        </div>
+		        <div class="card-body pt-0">
+		            <div class="row g-3">
+		                <div class="col-md-4">
+		                    <label class="text-muted small">Situación Administrativa</label>
+		                    <div class="fw-semibold">
+		                        <span th:text="${hermano.situacion != null ? hermano.situacion.codigoVisual : '-'}"
+		                              th:classappend="${
+		                                hermano.situacion?.codigo == 'ACTIVO' ? 'text-success' :
+		                                (hermano.situacion?.codigo == 'BAJA' ? 'text-danger' :
+		                                (hermano.situacion?.codigo == 'FALLE' ? 'text-fallecido' : ''))
+		                              }">
+		                        </span>
+		                    </div>
+		                </div>
+		                <div class="col-md-4">
+		                    <label class="text-muted small">Participación en Salida</label>
+		                    <div class="fw-semibold text-primary" th:text="${hermano.tipoParticipacion != null ? hermano.tipoParticipacion.nombre : 'Sin asignar'}">-</div>
+		                </div>
+		                <div class="col-md-4">
+		                    <label class="text-muted small">Año de Alta</label>
+		                    <div class="fw-semibold" th:text="${hermano.fechaInicioCofradia != null ? hermano.fechaInicioCofradia : '-'}">-</div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+		
+		</div>
+
+        <!-- COLUMNA DERECHA: CUOTAS (MOCK) -->
+        <div class="col-lg-4">
+            <!-- Aquí irá el historial de cuotas real en el futuro -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-header bg-light fw-bold d-flex justify-content-between align-items-center">
+                    Historial de Cuotas
+                    <span class="badge bg-secondary small">2024</span>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold">Cuota Anual 2024</span>
+                                <span class="badge bg-warning text-dark">Pendiente</span>
+                            </div>
+                            <div class="text-muted small mb-2">Importe: 30,00€</div>
+                            <button class="btn btn-success btn-sm w-100">Marcar como Pagada</button>
+                        </li>
+                        <li class="list-group-item p-3 bg-light">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold text-muted">Cuota Anual 2023</span>
+                                <span class="badge bg-success">Pagada</span>
+                            </div>
+                            <div class="text-muted small">Pagado el: 15/03/2023</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
+
 </main>
 
 <div th:replace="~{gestion/base :: footer}"></div>
 <div th:replace="~{gestion/base :: scripts}"></div>
+
 </body>
 </html>
