@@ -6,8 +6,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import es.cofradia.gestioncofradia.model.UsuarioCofradia;
-import es.cofradia.gestioncofradia.repository.UsuarioRepository;
+import es.cofradia.gestioncofradia.modulo.usuarios.dominio.UsuarioCofradia;
+import es.cofradia.gestioncofradia.modulo.usuarios.infraestructura.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 
 @ControllerAdvice

@@ -7,22 +7,22 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import es.cofradia.gestioncofradia.model.Cofradia;
-import es.cofradia.gestioncofradia.model.Hermano;
-import es.cofradia.gestioncofradia.model.Usuario;
-import es.cofradia.gestioncofradia.model.UsuarioCofradia;
-import es.cofradia.gestioncofradia.model.maestras.EstadoHermano;
-import es.cofradia.gestioncofradia.model.maestras.FormaComunicacion;
-import es.cofradia.gestioncofradia.model.maestras.FormaPago;
-import es.cofradia.gestioncofradia.model.maestras.RolCofradia;
-import es.cofradia.gestioncofradia.repository.CofradiaRepository;
-import es.cofradia.gestioncofradia.repository.HermanoRepository;
-import es.cofradia.gestioncofradia.repository.UsuarioCofradiaRepository;
-import es.cofradia.gestioncofradia.repository.UsuarioRepository;
-import es.cofradia.gestioncofradia.repository.maestras.EstadoHermanoRepository;
-import es.cofradia.gestioncofradia.repository.maestras.FormaComunicacionRepository;
-import es.cofradia.gestioncofradia.repository.maestras.FormaPagoRepository;
-import es.cofradia.gestioncofradia.repository.maestras.RolCofradiaRepository;
+import es.cofradia.gestioncofradia.modulo.cofradias.dominio.Cofradia;
+import es.cofradia.gestioncofradia.modulo.cofradias.infraestructura.repository.CofradiaRepository;
+import es.cofradia.gestioncofradia.modulo.hermanos.dominio.Hermano;
+import es.cofradia.gestioncofradia.modulo.hermanos.infraestructura.repository.HermanoRepository;
+import es.cofradia.gestioncofradia.modulo.maestras.dominio.EstadoHermano;
+import es.cofradia.gestioncofradia.modulo.maestras.dominio.FormaComunicacion;
+import es.cofradia.gestioncofradia.modulo.maestras.dominio.FormaPago;
+import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.EstadoHermanoRepository;
+import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.FormaComunicacionRepository;
+import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.FormaPagoRepository;
+import es.cofradia.gestioncofradia.modulo.usuarios.dominio.Usuario;
+import es.cofradia.gestioncofradia.modulo.usuarios.dominio.UsuarioCofradia;
+import es.cofradia.gestioncofradia.modulo.usuarios.infraestructura.repository.UsuarioCofradiaRepository;
+import es.cofradia.gestioncofradia.modulo.usuarios.infraestructura.repository.UsuarioRepository;
+import es.cofradia.gestioncofradia.modulo.usuarios.maestras.dominio.RolCofradia;
+import es.cofradia.gestioncofradia.modulo.usuarios.maestras.infraestructu.repository.RolCofradiaRepository;
 import lombok.RequiredArgsConstructor;
 
 @Component
