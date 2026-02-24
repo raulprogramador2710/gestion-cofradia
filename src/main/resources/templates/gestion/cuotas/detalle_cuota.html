@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{gestion/base :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Detalle Cuota - [[${session.nombreCofradia}]]</title>
+</head>
+<body>
+<section>
+
+    <!-- HEADER -->
+    <div class="card shadow-sm mb-4 border-0 rounded-4">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-light mb-1 text-dark">
+                    <i class="fas fa-file-invoice-dollar me-2"></i>
+                    <span th:text="${cuota.nombre}">Nombre Cuota</span>
+                </h2>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/gestion/cuotas}" class="btn btn-outline-secondary btn-sm">Volver</a>
+                <a th:href="@{/gestion/cuotas/{id}/editar(id=${cuota.id})}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-edit me-1"></i> Editar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- DATOS -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white py-3 border-bottom-0">
+            <h5 class="mb-0 fw-bold text-primary">
+                <i class="fas fa-info-circle me-2"></i>Información de la Cuota
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-4">
+
+                <div class="col-md-6">
+                    <p class="text-muted small mb-1">Nombre</p>
+                    <p class="fw-semibold" th:text="${cuota.nombre}">-</p>
+                </div>
+
+                <div class="col-md-3">
+                    <p class="text-muted small mb-1">Año</p>
+                    <p class="fw-semibold" th:text="${cuota.anio}">-</p>
+                </div>
+
+                <div class="col-md-3">
+                    <p class="text-muted small mb-1">Estado</p>
+                    <span th:if="${cuota.activa}" class="badge bg-success">Activa</span>
+                    <span th:unless="${cuota.activa}" class="badge bg-secondary">Inactiva</span>
+                </div>
+
+                <div class="col-md-4">
+                    <p class="text-muted small mb-1">Tipo de Cuota</p>
+                    <p class="fw-semibold" th:text="${cuota.tipo.codigoVisual}">-</p>
+                </div>
+
+                <div class="col-md-4">
+                    <p class="text-muted small mb-1">Importe Base</p>
+                    <p class="fw-semibold" th:text="${#numbers.formatCurrency(cuota.importeBase)}">-</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</section>
+</body>
+</html>

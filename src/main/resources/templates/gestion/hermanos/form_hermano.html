@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{gestion/base :: head('Formulario Hermano')}"></head>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{gestion/base :: layout(~{::title}, ~{::section})}">
+<head>
+    <title th:text="${esNuevo} ? 'Nuevo Hermano' : 'Editar Hermano'">Formulario Hermano</title>
+</head>
 <body>
-<div th:replace="~{gestion/base :: navbar}"></div>
+<section>
 
 <main class="main-content container py-4">
   <form th:action="@{/gestion/hermanos/guardar}" th:object="${hermano}" method="post">
@@ -51,7 +54,7 @@
       </div>
     </div>
 
-    <!-- 2. DATOS DE CONTACTO Y LOCALIZACIÓN -->
+    <!-- 2. CONTACTO Y LOCALIZACIÓN -->
     <div class="card shadow-sm border-0 rounded-4 mb-4">
       <div class="card-header bg-white py-3 border-bottom-0">
         <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-geo-alt me-2"></i>Contacto y Localización</h5>
@@ -100,7 +103,7 @@
           <div class="col-md-4">
             <label class="form-label text-muted small fw-bold">Año de ultimo pago</label>
             <input type="number" class="form-control shadow-none" name="fechaUltimoPago"
-                   th:value="${hermano.fechaUltimoPago != null ? hermano.fechaUltimoPago : ''}" />  
+                   th:value="${hermano.fechaUltimoPago != null ? hermano.fechaUltimoPago : ''}" />
           </div>
           <div class="col-md-8">
             <label class="form-label text-muted small fw-bold">Cuenta Bancaria (IBAN)</label>
@@ -139,16 +142,15 @@
           <div class="col-md-4">
             <label class="form-label text-muted small fw-bold">Año de Alta</label>
             <input type="number" class="form-control shadow-none" name="fechaInicioCofradia"
-                   th:value="${hermano.fechaInicioCofradia != null ? hermano.fechaInicioCofradia : ''}" />  
+                   th:value="${hermano.fechaInicioCofradia != null ? hermano.fechaInicioCofradia : ''}" />
           </div>
         </div>
       </div>
     </div>
-  
+
   </form>
 </main>
 
-<div th:replace="~{gestion/base :: footer}"></div>
-<div th:replace="~{gestion/base :: scripts}"></div>
+</section>
 </body>
 </html>

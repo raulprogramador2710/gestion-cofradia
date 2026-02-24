@@ -3,7 +3,7 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="~{gestion/base :: layout(~{::title}, ~{::section})}">
 <head>
-    <title>Censo de Hermanos - [[${cofradia?.nombreCorto}]]</title>
+    <title>Censo de Hermanos - [[${session.nombreCofradia}]]</title>
 </head>
 <body>
 <section>
