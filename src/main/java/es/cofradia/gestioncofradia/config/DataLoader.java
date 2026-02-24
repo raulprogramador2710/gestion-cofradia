@@ -15,10 +15,12 @@ import es.cofradia.gestioncofradia.modulo.maestras.dominio.FormaComunicacion;
 import es.cofradia.gestioncofradia.modulo.maestras.dominio.FormaPago;
 import es.cofradia.gestioncofradia.modulo.maestras.dominio.SituacionHermano;
 import es.cofradia.gestioncofradia.modulo.maestras.dominio.SituacionPagoHermano;
+import es.cofradia.gestioncofradia.modulo.maestras.dominio.TipoCuota;
 import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.FormaComunicacionRepository;
 import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.FormaPagoRepository;
 import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.SituacionHermanoRepository;
 import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.SituacionPagoHermanoRepository;
+import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.TipoCuotaRepository;
 import es.cofradia.gestioncofradia.modulo.salidas.dominio.TipoParticipacion;
 import es.cofradia.gestioncofradia.modulo.salidas.infraestructura.repository.TipoParticipacionRepository;
 import es.cofradia.gestioncofradia.modulo.usuarios.dominio.Usuario;
@@ -43,6 +45,7 @@ public class DataLoader implements CommandLineRunner {
     private final FormaComunicacionRepository comunicacionRepo;
     private final RolCofradiaRepository rolRepo;
     private final TipoParticipacionRepository tipoParticipacionRepo;
+    private final TipoCuotaRepository tipoCuotaRepo;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -140,6 +143,14 @@ public class DataLoader implements CommandLineRunner {
             ));
             System.out.println(">> Tipos de participación cargados.");
         }
+        
+        if (tipoCuotaRepo.count() == 0) {
+            tipoCuotaRepo.save(TipoCuota.builder().codigo("ANUAL").descripcion("Cuota anual de hermano").codigoVisual("Anual").build());
+            tipoCuotaRepo.save(TipoCuota.builder().codigo("EXTRAORDINARIA").descripcion("Cuota extraordinaria o derrama").codigoVisual("Extraordinaria").build());
+            tipoCuotaRepo.save(TipoCuota.builder().codigo("PAPELETA").descripcion("Pago por salida procesional").codigoVisual("Papeleta").build());
+            System.out.println(">> Tipos de cuota cargados.");
+        }
+        
     }
 
     // =========================================================

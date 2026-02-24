@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -57,5 +58,11 @@ public interface HermanoRepository extends JpaRepository<Hermano, Long> {
         @Param("filtroDni") String filtroDni,
         Pageable pageable
     );
+    
+    List<Hermano> findByCofradiaIdAndSituacionCodigo(Long cofradiaId, String codigo);
+    
+    @Modifying
+    @Query("UPDATE Hermano h SET h.situacionPago.id = :situacionId WHERE h.cofradia.id = :cofradiaId AND h.situacion.codigo IN ('ACTIVO', 'FALLECIDO')")
+    void actualizarSituacionPagoMasivo(@Param("cofradiaId") Long cofradiaId, @Param("situacionId") Long situacionId);
     
 }

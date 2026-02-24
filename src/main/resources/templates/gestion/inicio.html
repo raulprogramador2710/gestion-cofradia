@@ -1,144 +1,136 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{gestion/base :: head('Panel - Inicio')}"></head>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{gestion/base :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Panel de Control - [[${cofradia?.nombre}]]</title>
+</head>
 <body>
-    <div th:replace="~{gestion/base :: navbar}"></div>
+<section>
+    <!-- Cabecera -->
+    <h1 class="page-title">Panel de Control</h1>
+    <p class="page-subtitle" th:if="${cofradia != null}">
+        <i class="bi bi-house-door"></i> Gestión activa: <strong th:text="${cofradia.nombre}">Cofradía</strong>
+    </p>
 
-    <div class="main-content">
-        <!-- Cabecera -->
-        <h1 class="page-title">Panel de Control</h1>
-        <p class="page-subtitle" th:if="${cofradia != null}">
-            <i class="bi bi-house-door"></i> Gestión activa: <strong th:text="${cofradia.nombre}">Cofradía</strong>
-        </p>
-
-        <!-- Grid de Tarjetas -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Total Hermanos</div>
-                <div class="stat-value" th:text="${totalHermanos}">0</div>
-            </div>
-            <div class="stat-card color2">
-                <div class="stat-label">Notificaciones</div>
-                <div class="stat-value" th:text="${totalNotificaciones}">0</div>
-            </div>
-            <div class="stat-card color3">
-                <div class="stat-label">Tareas Pendientes</div>
-                <div class="stat-value" th:text="${#lists.size(tareasProximas)}">0</div>
-            </div>
+    <!-- Grid de Tarjetas -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Hermanos</div>
+            <div class="stat-value" th:text="${totalHermanos}">0</div>
         </div>
+        <div class="stat-card color2">
+            <div class="stat-label">Notificaciones</div>
+            <div class="stat-value" th:text="${totalNotificaciones}">0</div>
+        </div>
+        <div class="stat-card color3">
+            <div class="stat-label">Tareas Pendientes</div>
+            <div class="stat-value" th:text="${#lists.size(tareasProximas)}">0</div>
+        </div>
+    </div>
 
-        <!-- Sección de Gráficos -->
-        <div class="charts-section">
-            <div class="charts-header">
-                <h5>Distribución de la Cofradía</h5>
-            </div>
-            
-            <div class="charts-grid">
-                <div class="chart-item">
-				    <h6>Situación de Hermanos</h6>
-				    <div class="canvas-wrapper">
-				        <canvas id="chartSituacion"></canvas>
-				    </div>
-				</div>
-				<div class="chart-item">
-				    <h6>Estado de Pago</h6>
-				    <div class="canvas-wrapper">
-				        <canvas id="chartSituacionPago"></canvas>
-				    </div>
-				</div>
-                <div class="chart-item">
-                    <h6>Formas de Pago</h6>
-                    <div class="canvas-wrapper">
-                        <canvas id="chartPago"></canvas>
-                    </div>
+    <!-- Sección de Gráficos -->
+    <div class="charts-section">
+        <div class="charts-header">
+            <h5>Distribución de la Cofradía</h5>
+        </div>
+        <div class="charts-grid">
+            <div class="chart-item">
+                <h6>Situación de Hermanos</h6>
+                <div class="canvas-wrapper">
+                    <canvas id="chartSituacion"></canvas>
                 </div>
-                <div class="chart-item">
-                    <h6>Vías de Comunicación</h6>
-                    <div class="canvas-wrapper">
-                        <canvas id="chartComunicacion"></canvas>
-                    </div>
+            </div>
+            <div class="chart-item">
+                <h6>Estado de Pago</h6>
+                <div class="canvas-wrapper">
+                    <canvas id="chartSituacionPago"></canvas>
+                </div>
+            </div>
+            <div class="chart-item">
+                <h6>Formas de Pago</h6>
+                <div class="canvas-wrapper">
+                    <canvas id="chartPago"></canvas>
+                </div>
+            </div>
+            <div class="chart-item">
+                <h6>Vías de Comunicación</h6>
+                <div class="canvas-wrapper">
+                    <canvas id="chartComunicacion"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <div th:replace="~{gestion/base :: footer}"></div>
-    <div th:replace="~{gestion/base :: scripts}"></div>
-    
+    <!-- Scripts propios de esta página (Chart.js) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        const dataSituacion     = /*[[${hermanosPorSituacion}]]*/ {};
+        const dataSituacionPago = /*[[${hermanosPorSituacionPago}]]*/ {};
+        const dataPago          = /*[[${hermanosPorFormaPago}]]*/ {};
+        const dataComunicacion  = /*[[${hermanosPorFormaComunicacion}]]*/ {};
 
-   <script th:inline="javascript">
-    const dataSituacion     = /*[[${hermanosPorSituacion}]]*/ {};
-    const dataSituacionPago = /*[[${hermanosPorSituacionPago}]]*/ {};
-    const dataPago          = /*[[${hermanosPorFormaPago}]]*/ {};
-    const dataComunicacion  = /*[[${hermanosPorFormaComunicacion}]]*/ {};
+        const coloresSituacion = {
+            'Activo':    '#2ecc71',
+            'Baja':      '#e74c3c',
+            'Fallecido': '#f39c12'
+        };
+        const coloresSituacionPago = {
+            'Al día':    '#2ecc71',
+            'No pagado': '#e74c3c',
+            'Exento':    '#f39c12'
+        };
+        const coloresPago = {
+            'Efectivo':      '#f39c12',
+            'Domiciliación': '#e74c3c',
+            'Transferencia': '#2ecc71'
+        };
+        const coloresComunicacion = {
+            'Email':        '#f39c12',
+            'Whatsapp':     '#2ecc71',
+            'Carta postal': '#e74c3c'
+        };
 
-    const coloresSituacion = {
-        'Activo':    '#2ecc71',
-        'Baja':      '#e74c3c',
-        'Fallecido': '#f39c12'
-    };
-    const coloresSituacionPago = {
-        'Al día':  '#2ecc71',
-        'No pagado':  '#e74c3c',
-        'Exento':  '#f39c12'
-    };
-    const coloresPago = {
-        'Efectivo':      '#f39c12',
-        'Domiciliación': '#e74c3c',
-        'Transferencia': '#2ecc71'
-    };
-    const coloresComunicacion = {
-        'Email':     '#f39c12',
-        'Whatsapp':  '#2ecc71',
-        'Carta postal':     '#e74c3c'
-    };
-
-    function createChart(id, dataMap, colorMap) {
-        const canvas = document.getElementById(id);
-        if (!canvas) return;
-
-        const labels = Object.keys(dataMap);
-        const values = Object.values(dataMap);
-
-        // Asigna color por nombre exacto
-        const backgroundColors = labels.map(label => colorMap[label] || '#bdc3c7');
-
-        new Chart(canvas.getContext('2d'), {
-            type: 'pie',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: values,
-                    backgroundColor: backgroundColors,  // <-- AQUÍ el fix
-                    borderWidth: 2,
-                    borderColor: '#ffffff',
-                    hoverOffset: 15
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 15,
-                            usePointStyle: true,
-                            font: { size: 12, weight: 'bold' },
-                            color: '#333'
+        function createChart(id, dataMap, colorMap) {
+            const canvas = document.getElementById(id);
+            if (!canvas) return;
+            const labels = Object.keys(dataMap);
+            const values = Object.values(dataMap);
+            const backgroundColors = labels.map(label => colorMap[label] || '#bdc3c7');
+            new Chart(canvas.getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: backgroundColors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true,
+                                font: { size: 12, weight: 'bold' },
+                                color: '#333'
+                            }
                         }
                     }
                 }
-            }
-        });
-    }
+            });
+        }
 
-    window.onload = () => {
-        createChart('chartSituacion',     dataSituacion,     coloresSituacion);
-        createChart('chartSituacionPago', dataSituacionPago, coloresSituacionPago);
-        createChart('chartPago',          dataPago,          coloresPago);
-        createChart('chartComunicacion',  dataComunicacion,  coloresComunicacion);
-    };
-</script>
+        window.onload = () => {
+            createChart('chartSituacion',     dataSituacion,     coloresSituacion);
+            createChart('chartSituacionPago', dataSituacionPago, coloresSituacionPago);
+            createChart('chartPago',          dataPago,          coloresPago);
+            createChart('chartComunicacion',  dataComunicacion,  coloresComunicacion);
+        };
+    </script>
+</section>
 </body>
 </html>

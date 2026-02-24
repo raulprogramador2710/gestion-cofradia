@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{gestion/base :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Gestión de Cuotas - [[${cofradia.nombreCorto}]]</title>
+</head>
+<body>
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-file-invoice-dollar me-2"></i>Gestión de Cuotas</h1>
+        <a th:href="@{/gestion/cuotas/nueva}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Nueva Cuota
+        </a>
+    </div>
+
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${mensaje}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Año</th>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                        <th>Importe Base</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${cuotas}">
+                        <td th:text="${c.anio}" class="fw-bold">2025</td>
+                        <td th:text="${c.nombre}">Cuota Anual</td>
+                        <td>
+                            <span class="badge bg-info text-dark" th:text="${c.tipo.codigoVisual}">Anual</span>
+                        </td>
+                        <td th:text="${#numbers.formatCurrency(c.importeBase)}">30,00 €</td>
+                        <td class="text-center">
+                            <span th:if="${c.activa}" class="badge bg-success">Activa</span>
+                            <span th:unless="${c.activa}" class="badge bg-secondary">Inactiva</span>
+                        </td>
+                        <td class="text-end">
+                            <a th:href="@{/gestion/cuotas/{id}/recibos(id=${c.id})}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-users me-1"></i> Ver Recibos
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</body>
+</html>

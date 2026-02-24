@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:fragment="head(pageTitle)">
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="layout(title, section)">
+<head>
     <meta charset="UTF-8" />
-    <title th:text="${pageTitle} ?: 'Gestión Cofradía'"></title>
+    <!-- El molde recibe el título de cada página -->
+    <title th:replace="${title}">Gestión Cofradía</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/gestion-style.css}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-
 </head>
-<body>
-    <!-- NAVBAR FRAGMENT -->
-    <header th:fragment="navbar" class="navbar-custom d-flex justify-content-between align-items-center">
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- NAVBAR: Siempre visible en todas las páginas -->
+    <header class="navbar-custom d-flex justify-content-between align-items-center">
         <div>
             <a th:href="@{/gestion/inicio}">Gestión Cofradía</a>
             <span th:if="${session.nombreCofradia}" class="ms-3 opacity-75">
@@ -20,8 +20,9 @@
             </span>
         </div>
         
-        <div>
+        <div class="d-flex gap-2">
             <a th:href="@{/gestion/hermanos}" class="btn btn-logout">Hermanos</a>
+            <a th:href="@{/gestion/cuotas}" class="btn btn-logout">Cuotas</a>
         </div>
 
         <form th:action="@{/logout}" method="post" class="m-0">
@@ -29,16 +30,24 @@
         </form>
     </header>
 
-    <!-- CONTENIDO -->
-    <main>
-        <div th:fragment="content" class="main-content">
-            <h2 class="page-title">Panel</h2>
-            <p>Contenido por defecto.</p>
+    <!-- CONTENIDO: Aquí es donde se "inyectará" lo que escribas en cada página -->
+    <main class="container mt-4 flex-grow-1">
+        <div th:replace="${section}">
+            <p>Contenido por defecto si algo falla.</p>
         </div>
     </main>
 
-    <!-- MODAL DE CONFIRMACIÓN -->
-    <div th:fragment="confirm-modal" id="confirmModal" class="confirm-modal" aria-hidden="true">
+    <!-- FOOTER: Siempre al final -->
+    <footer class="py-4 text-center text-muted mt-auto border-top">
+        <small>&copy; <span th:text="${#dates.format(#dates.createNow(),'yyyy')}">2026</span> Gestión Cofradía</small>
+    </footer>
+
+    <!-- SCRIPTS: Cargados una sola vez para todos -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/confirm-modal.js}"></script>
+
+    <!-- El modal de confirmación también lo dejamos aquí disponible para todos -->
+    <div id="confirmModal" class="confirm-modal" aria-hidden="true">
       <div class="confirm-modal-backdrop" data-close-modal></div>
       <div class="confirm-modal-panel">
         <header class="confirm-modal-header">
@@ -48,7 +57,6 @@
         <div class="confirm-modal-body">
           <p id="confirmModalDesc">¿Estás seguro?</p>
         </div>
-        <!-- He cambiado la etiqueta footer por un div para que no choque con el fragmento footer -->
         <div class="confirm-modal-footer">
           <button id="confirmCancel" class="btn btn-outline-secondary" type="button">Cancelar</button>
           <button id="confirmAccept" class="btn btn-danger" type="button">Eliminar</button>
@@ -56,15 +64,5 @@
       </div>
     </div>
 
-    <!-- FOOTER DE LA APP (Fragmento limpio) -->
-    <footer th:fragment="footer" class="py-4 text-center text-muted mt-auto">
-        <small>&copy; <span th:text="${#dates.format(#dates.createNow(),'yyyy')}">2026</span> Gestión Cofradía</small>
-    </footer>
-
-    <!-- SCRIPTS FRAGMENT -->
-    <div th:fragment="scripts">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script th:src="@{/js/confirm-modal.js}"></script>
-    </div>
 </body>
 </html>
