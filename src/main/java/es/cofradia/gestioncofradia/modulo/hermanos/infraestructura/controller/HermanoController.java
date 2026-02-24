@@ -21,12 +21,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import es.cofradia.gestioncofradia.modulo.hermanos.aplicacion.HermanoService;
+import es.cofradia.gestioncofradia.modulo.hermanos.aplicacion.dto.HermanoListaDTO;
 import es.cofradia.gestioncofradia.modulo.hermanos.dominio.Hermano;
 import es.cofradia.gestioncofradia.modulo.hermanos.infraestructura.repository.HermanoRepository;
 import es.cofradia.gestioncofradia.modulo.maestras.dominio.FormaComunicacion;
 import es.cofradia.gestioncofradia.modulo.maestras.dominio.FormaPago;
 import es.cofradia.gestioncofradia.modulo.maestras.dominio.SituacionHermano;
-import es.cofradia.gestioncofradia.modulo.maestras.dominio.SituacionPagoHermano;
 import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.FormaComunicacionRepository;
 import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.FormaPagoRepository;
 import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.SituacionHermanoRepository;
@@ -34,6 +34,10 @@ import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.Si
 import es.cofradia.gestioncofradia.modulo.salidas.dominio.PapeletaSitio;
 import es.cofradia.gestioncofradia.modulo.salidas.infraestructura.repository.PapeletaSitioRepository;
 import es.cofradia.gestioncofradia.modulo.salidas.infraestructura.repository.TipoParticipacionRepository;
+import es.cofradia.gestioncofradia.modulo.tesoreria.aplicacion.CuotaHermanoService;
+import es.cofradia.gestioncofradia.modulo.tesoreria.dominio.Cuota;
+import es.cofradia.gestioncofradia.modulo.tesoreria.dominio.CuotaHermano;
+import es.cofradia.gestioncofradia.modulo.tesoreria.infraestructura.repository.CuotaRepository;
 import es.cofradia.gestioncofradia.modulo.usuarios.dominio.Usuario;
 import es.cofradia.gestioncofradia.modulo.usuarios.dominio.UsuarioCofradia;
 import es.cofradia.gestioncofradia.modulo.usuarios.infraestructura.repository.UsuarioRepository;
@@ -53,6 +57,8 @@ public class HermanoController {
     private final PapeletaSitioRepository papeletaRepo;
     private final TipoParticipacionRepository tipoParticipacionRepo;
     private final HermanoService hermanoService;
+    private final CuotaHermanoService cuotaHermanoService;
+    private final CuotaRepository cuotaRepo;
 
     private static final List<String> ROLES_GESTION = List.of("ADMIN", "HM", "TES", "SEC", "RRSS");
 
@@ -78,12 +84,18 @@ public class HermanoController {
         filtroNombre = (filtroNombre == null || "null".equals(filtroNombre)) ? "" : filtroNombre.trim();
         filtroDni    = (filtroDni    == null || "null".equals(filtroDni))    ? "" : filtroDni.trim();
 
+        // Última cuota activa de la cofradía
+        Long cuotaId = cuotaRepo.findFirstByCofradiaIdAndActivaTrueOrderByAnioDesc(cofradiaId)
+                .map(Cuota::getId)
+                .orElse(-1L); // -1L si no hay cuota → el LEFT JOIN no devuelve nada
+
         Sort sort = sortDir.equalsIgnoreCase("asc")
                 ? Sort.by(sortField).ascending()
                 : Sort.by(sortField).descending();
 
-        Page<Hermano> hermanosPage = hermanoRepo.buscarPorCofradiaConFiltros(
+        Page<HermanoListaDTO> hermanosPage = hermanoRepo.buscarHermanosConEstadoPago(
                 cofradiaId,
+                cuotaId,
                 filtroNombre.isEmpty() ? null : filtroNombre,
                 filtroDni.isEmpty()    ? null : filtroDni,
                 PageRequest.of(page, size, sort));
@@ -99,6 +111,7 @@ public class HermanoController {
         model.addAttribute("filtroNombre", filtroNombre);
         model.addAttribute("filtroDni", filtroDni);
         model.addAttribute("anioActual", Year.now().getValue());
+        model.addAttribute("hayCuota", cuotaId != -1L);
 
         return "gestion/hermanos/lista_hermanos";
     }
@@ -115,7 +128,6 @@ public class HermanoController {
         hermano.setCofradia(uc.getCofradia());
         hermano.setNumHermano(calcularSiguienteNum(uc.getCofradia().getId()));
         hermano.setSituacion(new SituacionHermano());
-        hermano.setSituacionPago(new SituacionPagoHermano());
         hermano.setFormaPago(new FormaPago());
         hermano.setFormaComunicacion(new FormaComunicacion());
 
@@ -140,7 +152,6 @@ public class HermanoController {
 
         // Inicializar sub-objetos para evitar problemas de binding en selects
         if (hermano.getSituacion() == null)         hermano.setSituacion(new SituacionHermano());
-        if (hermano.getSituacionPago() == null)     hermano.setSituacionPago(new SituacionPagoHermano());
         if (hermano.getFormaPago() == null)         hermano.setFormaPago(new FormaPago());
         if (hermano.getFormaComunicacion() == null) hermano.setFormaComunicacion(new FormaComunicacion());
 
@@ -186,10 +197,6 @@ public class HermanoController {
     	        ? situacionRepo.findById(hermano.getSituacion().getId()).orElse(null) : null
     	);
 
-    	hermano.setSituacionPago(
-    	    (hermano.getSituacionPago() != null && hermano.getSituacionPago().getId() != null)
-    	        ? situacionPagoRepo.findById(hermano.getSituacionPago().getId()).orElse(null) : null
-    	);
         hermano.setFormaPago(
             (hermano.getFormaPago() != null && hermano.getFormaPago().getId() != null)
                 ? pagoRepo.findById(hermano.getFormaPago().getId()).orElse(null) : null
@@ -218,13 +225,15 @@ public class HermanoController {
     @GetMapping("/detalle/{id}")
     @Transactional(readOnly = true)
     public String verDetalle(@PathVariable Long id, Model model) {
-        Hermano hermano = hermanoRepo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("ID inválido"));
+        Hermano hermano = hermanoRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("ID inválido"));
 
         // Historial completo de papeletas ordenado por año descendente
         List<PapeletaSitio> historialPapeletas = papeletaRepo.findByHermanoIdOrderByAnioDesc(id);
+        
+        List<CuotaHermano> cuotas = cuotaHermanoService.buscarPorHermano(hermano);
 
         model.addAttribute("hermano", hermano);
+        model.addAttribute("cuotas", cuotas);
         model.addAttribute("historialPapeletas", historialPapeletas);
         model.addAttribute("anioActual", Year.now().getValue());
 

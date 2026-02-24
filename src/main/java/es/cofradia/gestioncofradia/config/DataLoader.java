@@ -1,5 +1,6 @@
 package es.cofradia.gestioncofradia.config;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -23,6 +24,10 @@ import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.Si
 import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.TipoCuotaRepository;
 import es.cofradia.gestioncofradia.modulo.salidas.dominio.TipoParticipacion;
 import es.cofradia.gestioncofradia.modulo.salidas.infraestructura.repository.TipoParticipacionRepository;
+import es.cofradia.gestioncofradia.modulo.tesoreria.dominio.Cuota;
+import es.cofradia.gestioncofradia.modulo.tesoreria.dominio.CuotaHermano;
+import es.cofradia.gestioncofradia.modulo.tesoreria.infraestructura.repository.CuotaHermanoRepository;
+import es.cofradia.gestioncofradia.modulo.tesoreria.infraestructura.repository.CuotaRepository;
 import es.cofradia.gestioncofradia.modulo.usuarios.dominio.Usuario;
 import es.cofradia.gestioncofradia.modulo.usuarios.dominio.UsuarioCofradia;
 import es.cofradia.gestioncofradia.modulo.usuarios.infraestructura.repository.UsuarioCofradiaRepository;
@@ -46,6 +51,8 @@ public class DataLoader implements CommandLineRunner {
     private final RolCofradiaRepository rolRepo;
     private final TipoParticipacionRepository tipoParticipacionRepo;
     private final TipoCuotaRepository tipoCuotaRepo;
+    private CuotaRepository cuotaRepo;
+    private CuotaHermanoRepository cuotaHermanoRepo;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -210,12 +217,10 @@ public class DataLoader implements CommandLineRunner {
     private void crearHermanoDePrueba(Cofradia cofradia, String dni, Integer numHermano, Integer anioInicio) {
         if (hermanoRepo.findByDniAndCofradiaId(dni, cofradia.getId()).isEmpty()) {
             SituacionHermano activo    = situacionRepo.findByCodigo("ACTIVO").orElseThrow();
-            SituacionPagoHermano alDia = situacionPagoRepo.findByCodigo("AL_DIA").orElseThrow();
 
             hermanoRepo.save(Hermano.builder()
                     .cofradia(cofradia)
                     .situacion(activo)
-                    .situacionPago(alDia)
                     .formaPago(pagoRepo.findByCodigo("TRANSFERENCIA").orElseThrow())
                     .formaComunicacion(comunicacionRepo.findByCodigo("WHATSAPP").orElseThrow())
                     .numHermano(numHermano)
@@ -233,6 +238,32 @@ public class DataLoader implements CommandLineRunner {
                     .lopd(true)
                     .build());
         }
+    }
+    
+    public void cargarCuota2025ConPagoParaHermano(Hermano hermano) {
+        // 1. Crear o buscar la cuota del año 2025
+        Cuota cuota2025 = cuotaRepo.findByAnio(2025)
+            .orElseGet(() -> {
+                Cuota nuevaCuota = new Cuota();
+                nuevaCuota.setAnio(2025);
+                nuevaCuota.setImporte(new BigDecimal("30.00")); // Ajusta importe si quieres
+                nuevaCuota.setTipoCuota(tipoCuotaRepository.findByCodigo("ANUAL").orElse(null)); // Ajusta tipo cuota
+                return cuotaRepository.save(nuevaCuota);
+            });
+
+        // 2. Buscar la situación de pago "PENDIENTE" o "AL_DIA" según quieras
+        SituacionPagoHermano situacionPago = situacionPagoRepo.findByCodigo("PENDIENTE")
+            .orElseThrow(() -> new RuntimeException("Situación de pago 'PENDIENTE' no encontrada"));
+
+        // 3. Crear la relación CuotaHermano para el hermano y la cuota 2025
+        CuotaHermano cuotaHermano = new CuotaHermano();
+        cuotaHermano.setCuota(cuota2025);
+        cuotaHermano.setHermano(hermano);
+        cuotaHermano.setSituacionPago(situacionPago);
+        // No ponemos fechaPago porque está pendiente
+        cuotaHermanoRepo.save(cuotaHermano);
+
+        System.out.println("Cuota 2025 creada y asociada al hermano " + hermano.getNumHermano());
     }
 
     private void savePago(String cod, String desc, String codVis) {

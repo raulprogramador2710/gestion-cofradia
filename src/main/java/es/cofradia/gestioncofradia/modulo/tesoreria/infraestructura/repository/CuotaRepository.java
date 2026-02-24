@@ -10,6 +10,10 @@ import es.cofradia.gestioncofradia.modulo.tesoreria.dominio.Cuota;
 public interface CuotaRepository extends JpaRepository<Cuota, Long> {
 
     List<Cuota> findByCofradiaId(Long cofradiaId);
+    
+    Optional<Cuota> findByAnio(Integer anio);
 
     Optional<Cuota> findFirstByCofradiaIdAndTipoCodigoAndActivaTrueOrderByAnioDesc(Long cofradiaId, String tipoCodigo);
+    
+    Optional<Cuota> findFirstByCofradiaIdAndActivaTrueOrderByAnioDesc(Long cofradiaId);
 }

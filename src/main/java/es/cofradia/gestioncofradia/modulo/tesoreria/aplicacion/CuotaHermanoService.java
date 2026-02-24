@@ -1,6 +1,7 @@
 package es.cofradia.gestioncofradia.modulo.tesoreria.aplicacion;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import es.cofradia.gestioncofradia.modulo.tesoreria.dominio.Cuota;
 import es.cofradia.gestioncofradia.modulo.tesoreria.dominio.CuotaHermano;
 import es.cofradia.gestioncofradia.modulo.tesoreria.infraestructura.repository.CuotaHermanoRepository;
 import es.cofradia.gestioncofradia.modulo.tesoreria.infraestructura.repository.CuotaRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -20,28 +22,29 @@ import lombok.RequiredArgsConstructor;
 public class CuotaHermanoService {
 
     private final CuotaHermanoRepository cuotaHermanoRepo;
+    
     private final HermanoRepository hermanoRepo;
+    
     private final CuotaRepository cuotaRepo;
+    
     private final SituacionPagoHermanoRepository situacionPagoRepo;
 
     @Transactional
     public void registrarPagoAnual(Long hermanoId, Long cofradiaId) {
-        Hermano hermano = hermanoRepo.findById(hermanoId)
-                .orElseThrow(() -> new IllegalArgumentException("Hermano no encontrado"));
+    	
+        Hermano hermano = hermanoRepo.findById(hermanoId).orElseThrow(() -> new IllegalArgumentException("Hermano no encontrado"));
 
         // 1. Buscamos la cuota anual activa de la cofradía
-        Cuota cuotaActiva = cuotaRepo
-                .findFirstByCofradiaIdAndTipoCodigoAndActivaTrueOrderByAnioDesc(cofradiaId, "ANUAL")
-                .orElseThrow(() -> new RuntimeException("No hay cuota anual activa configurada"));
+        Cuota cuotaActiva = cuotaRepo.findFirstByCofradiaIdAndTipoCodigoAndActivaTrueOrderByAnioDesc(cofradiaId, "ANUAL").
+        		orElseThrow(() -> new RuntimeException("No hay cuota anual activa configurada"));
 
-        // 2. Evitar duplicados: si ya pagó esta cuota, no hacemos nada
+        // 2. Evitar duplicados: si ya existe el registro, no hacemos nada
         if (cuotaHermanoRepo.existsByCuotaIdAndHermanoId(cuotaActiva.getId(), hermanoId)) {
             throw new RuntimeException("Este hermano ya tiene registrado el pago de esta cuota");
         }
 
-        // 3. Creamos el registro de pago en la tabla intermedia
-        SituacionPagoHermano alDia = situacionPagoRepo.findByCodigo("AL_DIA")
-                .orElseThrow(() -> new RuntimeException("No existe situación AL_DIA en maestras"));
+        // 3. Creamos el registro de pago
+        SituacionPagoHermano alDia = situacionPagoRepo.findByCodigo("AL_DIA").orElseThrow(() -> new RuntimeException("No existe situación AL_DIA en maestras"));
 
         CuotaHermano pago = CuotaHermano.builder()
                 .cuota(cuotaActiva)
@@ -54,9 +57,28 @@ public class CuotaHermanoService {
 
         cuotaHermanoRepo.save(pago);
 
-        // 4. Actualizamos la ficha del hermano
-        hermano.setSituacionPago(alDia);
+        // 4. Actualizamos solo el año del último pago en la ficha del hermano
         hermano.setFechaUltimoPago(cuotaActiva.getAnio());
         hermanoRepo.save(hermano);
     }
+    
+    public List<CuotaHermano> buscarPorHermano(Hermano hermano) {
+        
+    	return cuotaHermanoRepo.findByHermanoOrderByCuotaAnioDesc(hermano);
+    	
+    }
+    
+    @Transactional
+    public void marcarComoPagada(Long id) {
+    	
+        CuotaHermano cuota = cuotaHermanoRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Cuota no encontrada"));
+        
+        SituacionPagoHermano pagada = situacionPagoRepo.findByCodigo("PAGADA").orElseThrow(() -> new EntityNotFoundException("Situación de pago 'PAGADA' no encontrada"));
+        
+        cuota.setSituacionPago(pagada);
+        cuota.setFechaPago(LocalDate.now());
+        
+        cuotaHermanoRepo.save(cuota);
+    }
+    
 }

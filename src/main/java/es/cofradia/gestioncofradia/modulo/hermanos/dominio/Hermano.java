@@ -93,11 +93,6 @@ public class Hermano {
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private SituacionHermano situacion;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "situacion_pago_id")
-    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-    private SituacionPagoHermano situacionPago;
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "forma_pago_id", nullable = false)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)

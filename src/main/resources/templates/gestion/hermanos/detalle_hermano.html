@@ -85,7 +85,7 @@
             <!-- 2. CONTACTO Y LOCALIZACIÓN -->
             <div class="card shadow-sm border-0 rounded-4 mb-4">
                 <div class="card-header bg-white py-3 border-bottom-0">
-                    <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-geo-alt me-2"></i>Contacto y Localización</h5>
+                    <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-geo-alt me-2"></i>Contacto</h5>
                 </div>
                 <div class="card-body pt-0">
                     <div class="row g-3">
@@ -133,14 +133,10 @@
                         </div>
                         <div class="col-md-4">
                             <label class="text-muted small">Estado de Cuotas</label>
-                            <div class="fw-semibold">
-                                <span th:text="${hermano.situacionPago != null ? hermano.situacionPago.codigoVisual : '-'}"
-                                      th:classappend="${
-                                        hermano.situacionPago != null && hermano.situacionPago.codigo == 'AL_DIA' ? 'text-success' :
-                                        (hermano.situacionPago != null && hermano.situacionPago.codigo == 'DEUDOR' ? 'text-warning' : 'text-info')
-                                      }">
-                                </span>
-                            </div>
+                            <div class="fw-semibold text-muted">
+						        <i class="bi bi-info-circle me-1"></i>
+						        Ver historial de cuotas
+						    </div>
                         </div>
                         <div class="col-md-8">
                             <label class="text-muted small">IBAN</label>
@@ -188,30 +184,33 @@
         <!-- COLUMNA DERECHA: CUOTAS (MOCK) -->
         <div class="col-lg-4">
             <div class="card shadow-sm border-0 rounded-4 mb-4">
-                <div class="card-header bg-light fw-bold d-flex justify-content-between align-items-center">
-                    Historial de Cuotas
-                    <span class="badge bg-secondary small">2024</span>
-                </div>
-                <div class="card-body p-0">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item p-3">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="fw-bold">Cuota Anual 2024</span>
-                                <span class="badge bg-warning text-dark">Pendiente</span>
-                            </div>
-                            <div class="text-muted small mb-2">Importe: 30,00€</div>
-                            <button class="btn btn-success btn-sm w-100">Marcar como Pagada</button>
-                        </li>
-                        <li class="list-group-item p-3 bg-light">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="fw-bold text-muted">Cuota Anual 2023</span>
-                                <span class="badge bg-success">Pagada</span>
-                            </div>
-                            <div class="text-muted small">Pagado el: 15/03/2023</div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+			    <div class="card-header bg-light fw-bold d-flex justify-content-between align-items-center">
+			        Historial de Cuotas
+			        <span class="badge bg-secondary small" th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2024</span>
+			    </div>
+			    <div class="card-body p-0" th:if="${cuotas != null and !cuotas.isEmpty()}">
+			        <ul class="list-group list-group-flush">
+			            <li class="list-group-item p-3" th:each="cuotaHermano : ${cuotas}">
+			                <div class="d-flex justify-content-between align-items-center mb-1">
+			                    <span class="fw-bold" th:text="${'Cuota Anual ' + cuotaHermano.cuota.anio}">Cuota Anual 2024</span>
+			                    <span class="badge"
+			                          th:classappend="${cuotaHermano.situacionPago.codigo == 'PENDIENTE' ? 'bg-warning text-dark' : 'bg-success'}"
+			                          th:text="${cuotaHermano.situacionPago.codigo == 'PENDIENTE' ? 'Pendiente' : 'Pagada'}">Pendiente</span>
+			                </div>
+			                <div class="text-muted small" th:text="${'Importe: ' + #numbers.formatDecimal(cuotaHermano.cuota.importe, 1, 'COMMA', 2, 'POINT') + '€'}">Importe: 30,00€</div>
+			                <div class="text-muted small" th:if="${cuotaHermano.situacionPago.codigo == 'PAGADA'}"
+			                     th:text="${'Pagado el: ' + #temporals.format(cuotaHermano.fechaPago, 'dd/MM/yyyy')}">Pagado el: 15/03/2023</div>
+			                <button class="btn btn-success btn-sm w-100" th:if="${cuotaHermano.situacionPago.codigo == 'PENDIENTE'}"
+			                        th:attr="data-id=${cuotaHermano.id}" onclick="marcarComoPagada(this)">
+			                    Marcar como Pagada
+			                </button>
+			            </li>
+			        </ul>
+			    </div>
+			    <div class="card-body p-3 text-muted" th:if="${cuotas == null or cuotas.isEmpty()}">
+			        No hay cuotas registradas.
+			    </div>
+			</div>
         </div>
     </div>
 
@@ -219,4 +218,23 @@
 
 </section>
 </body>
+<script>
+function marcarComoPagada(button) {
+    const cuotaId = button.getAttribute('data-id');
+    fetch('/gestion/cuotas/marcar-pagada/' + cuotaId, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': /* Aquí pon el token CSRF si usas Spring Security */,
+            'Content-Type': 'application/json'
+        }
+    }).then(response => {
+        if (response.ok) {
+            // Refrescar la página o actualizar el estado visual
+            location.reload();
+        } else {
+            alert('Error al marcar la cuota como pagada');
+        }
+    });
+}
+</script>
 </html>

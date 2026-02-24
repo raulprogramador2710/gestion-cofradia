@@ -48,13 +48,13 @@
                                 </a>
                             </th>
                             <th>
-                                <a th:href="@{/gestion/hermanos(page=0, size=${size}, sortField='situacion.descripcion', sortDir=${sortField == 'situacion.descripcion' ? reverseSortDir : 'asc'}, filtroNombre=${filtroNombre}, filtroDni=${filtroDni})}">
-                                    Situación <i th:classappend="${sortField == 'situacion.descripcion' ? (sortDir == 'asc' ? 'fa fa-arrow-up' : 'fa fa-arrow-down') : ''}"></i>
+                                <a th:href="@{/gestion/hermanos(page=0, size=${size}, sortField='situacionCodigo', sortDir=${sortField == 'situacionCodigo' ? reverseSortDir : 'asc'}, filtroNombre=${filtroNombre}, filtroDni=${filtroDni})}">
+                                    Situación <i th:classappend="${sortField == 'situacionCodigo' ? (sortDir == 'asc' ? 'fa fa-arrow-up' : 'fa fa-arrow-down') : ''}"></i>
                                 </a>
                             </th>
                             <th>
-                                <a th:href="@{/gestion/hermanos(page=0, size=${size}, sortField='situacionPago.descripcion', sortDir=${sortField == 'situacionPago.descripcion' ? reverseSortDir : 'asc'}, filtroNombre=${filtroNombre}, filtroDni=${filtroDni})}">
-                                    Pago <i th:classappend="${sortField == 'situacionPago.descripcion' ? (sortDir == 'asc' ? 'fa fa-arrow-up' : 'fa fa-arrow-down') : ''}"></i>
+                                <a th:href="@{/gestion/hermanos(page=0, size=${size}, sortField='pagoCodigo', sortDir=${sortField == 'pagoCodigo' ? reverseSortDir : 'asc'}, filtroNombre=${filtroNombre}, filtroDni=${filtroDni})}">
+                                    Pago <i th:classappend="${sortField == 'pagoCodigo' ? (sortDir == 'asc' ? 'fa fa-arrow-up' : 'fa fa-arrow-down') : ''}"></i>
                                 </a>
                             </th>
                             <th class="text-center">Labor salida</th>
@@ -69,32 +69,32 @@
 
                             <td>
                                 <span class="badge rounded-pill"
-                                      th:text="${h.situacion != null ? h.situacion.codigoVisual : '-'}"
+                                      th:text="${h.situacionVisual ?: '-'}"
                                       th:classappend="${
-                                        h.situacion == null ? ' bg-secondary' :
-                                        (h.situacion.codigo == 'ACTIVO'  ? ' bg-success' :
-                                        (h.situacion.codigo == 'BAJA'    ? ' bg-danger'  :
-                                        (h.situacion.codigo == 'FALLE'   ? ' bg-fallecido' : ' bg-secondary')))}">
+                                        h.situacionCodigo == 'ACTIVO'  ? ' bg-success' :
+                                        (h.situacionCodigo == 'BAJA'   ? ' bg-danger'  :
+                                        (h.situacionCodigo == 'FALLE'  ? ' bg-fallecido' : ' bg-secondary'))}">
                                 </span>
                             </td>
 
                             <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${h.situacionPago != null ? h.situacionPago.codigoVisual : '-'}"
+                                <span th:if="${!hayCuota}" class="text-muted small">Sin cuota</span>
+                                <span th:if="${hayCuota}"
+                                      class="badge rounded-pill"
+                                      th:text="${h.pagoVisual ?: '-'}"
                                       th:classappend="${
-                                        h.situacionPago == null    ? ' bg-secondary' :
-                                        (h.situacionPago.codigo == 'AL_DIA' ? ' bg-success' :
-                                        (h.situacionPago.codigo == 'DEUDOR' ? ' bg-warning text-dark' :
-                                        (h.situacionPago.codigo == 'EXENTO' ? ' bg-info text-dark' : ' bg-secondary')))}">
+                                        h.pagoCodigo == 'AL_DIA'    ? ' bg-success' :
+                                        (h.pagoCodigo == 'NO_PAGADO' ? ' bg-warning text-dark' :
+                                        (h.pagoCodigo == 'EXENTO'   ? ' bg-info text-dark' : ' bg-secondary'))}">
                                 </span>
                             </td>
 
                             <td class="text-center">
-                                <span th:if="${h.tipoParticipacion != null}"
-                                      th:text="${h.tipoParticipacion.nombre}"
+                                <span th:if="${h.tipoParticipacionNombre != null}"
+                                      th:text="${h.tipoParticipacionNombre}"
                                       class="badge bg-info text-dark">
                                 </span>
-                                <span th:if="${h.tipoParticipacion == null}" class="text-muted small">-</span>
+                                <span th:if="${h.tipoParticipacionNombre == null}" class="text-muted small">-</span>
                             </td>
 
                             <td class="text-center">
@@ -135,7 +135,6 @@
         </div>
     </div>
 
-    <!-- Estilo específico de esta página -->
     <style>
         .bg-fallecido { background-color: #795548 !important; }
     </style>
