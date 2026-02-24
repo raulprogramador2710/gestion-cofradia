@@ -19,4 +19,10 @@ public interface CuotaHermanoRepository extends JpaRepository<CuotaHermano, Long
     Optional<CuotaHermano> findByCuotaIdAndHermanoId(Long cuotaId, Long hermanoId);
     
     List<CuotaHermano> findByHermanoOrderByCuotaAnioDesc(Hermano hermano);
+    
+    Optional<CuotaHermano> findByHermanoIdAndCuotaId(Long hermanoId, Long cuotaId);
+    
+    List<CuotaHermano> findByHermanoIdAndCofradiaId(Long hermanoId, Long cofradiaId);
+
+    Optional<CuotaHermano> findByCuotaIdAndHermanoIdAndCofradiaId(Long cuotaId, Long hermanoId, Long cofradiaId);
 }

@@ -93,12 +93,8 @@ public class HermanoController {
                 ? Sort.by(sortField).ascending()
                 : Sort.by(sortField).descending();
 
-        Page<HermanoListaDTO> hermanosPage = hermanoRepo.buscarHermanosConEstadoPago(
-                cofradiaId,
-                cuotaId,
-                filtroNombre.isEmpty() ? null : filtroNombre,
-                filtroDni.isEmpty()    ? null : filtroDni,
-                PageRequest.of(page, size, sort));
+        Page<HermanoListaDTO> hermanosPage = hermanoRepo.buscarHermanosConEstadoUltimaCuota(cofradiaId, filtroNombre.isEmpty() ? null : filtroNombre,
+        		filtroDni.isEmpty()    ? null : filtroDni, PageRequest.of(page, size, sort));
 
         model.addAttribute("hermanosPage", hermanosPage);
         model.addAttribute("hermanos", hermanosPage.getContent());
@@ -111,7 +107,9 @@ public class HermanoController {
         model.addAttribute("filtroNombre", filtroNombre);
         model.addAttribute("filtroDni", filtroDni);
         model.addAttribute("anioActual", Year.now().getValue());
-        model.addAttribute("hayCuota", cuotaId != -1L);
+        
+        boolean hayCuota = !cuotaRepo.findByCofradiaId(cofradiaId).isEmpty();
+        model.addAttribute("hayCuota", hayCuota);
 
         return "gestion/hermanos/lista_hermanos";
     }

@@ -25,10 +25,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Usuario sin referencia directa a una única Cofradía.
- * La relación many-to-many queda modelada mediante la entidad UsuarioCofradia.
- */
 @Entity
 @Table(name = "usuario")
 @Audited
@@ -55,11 +51,11 @@ public class Usuario {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<UsuarioCofradia> usuarioCofradias = new HashSet<>();
 
-    
     /* ---------- Helpers útiles ---------- */
 
     public Set<Cofradia> getCofradias() {
-        if (usuarioCofradias == null) return Collections.emptySet();
+        if (usuarioCofradias == null)
+            return Collections.emptySet();
         return usuarioCofradias.stream()
                 .map(UsuarioCofradia::getCofradia)
                 .collect(Collectors.toSet());

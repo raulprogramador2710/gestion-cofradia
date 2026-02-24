@@ -61,29 +61,32 @@ public interface HermanoRepository extends JpaRepository<Hermano, Long> {
     List<Hermano> findByCofradiaIdAndSituacionCodigo(Long cofradiaId, String codigo);
 
     List<Hermano> findByCofradiaIdAndSituacionCodigoIn(Long cofradiaId, List<String> codigos);
-
+    
     @Query("""
     	    SELECT new es.cofradia.gestioncofradia.modulo.hermanos.aplicacion.dto.HermanoListaDTO(
-    	        h.id, h.numHermano, h.nombre, h.apellidos, h.dni, 
-    	        s.codigo, s.codigoVisual, 
-    	        sp.codigo, sp.codigoVisual, 
+    	        h.id, h.numHermano, h.nombre, h.apellidos, h.dni,
+    	        s.codigo, s.codigoVisual,
+    	        sp.codigo, sp.codigoVisual,
     	        tp.nombre
     	    )
     	    FROM Hermano h
     	    LEFT JOIN h.situacion s
     	    LEFT JOIN h.tipoParticipacion tp
-    	    LEFT JOIN CuotaHermano ch ON ch.hermano = h AND ch.cuota.id = :cuotaId
+    	    LEFT JOIN CuotaHermano ch ON ch.hermano = h
+    		    AND ch.cofradia.id = :cofradiaId
+    	        AND ch.cuota.anio = (
+    	            SELECT MAX(c2.anio) FROM Cuota c2 WHERE c2.cofradia.id = :cofradiaId
+    	        )
     	    LEFT JOIN ch.situacionPago sp
     	    WHERE h.cofradia.id = :cofradiaId
     	      AND (:filtroNombre IS NULL OR LOWER(h.nombre) LIKE LOWER(CONCAT('%', CAST(:filtroNombre AS string), '%'))
     	           OR LOWER(h.apellidos) LIKE LOWER(CONCAT('%', CAST(:filtroNombre AS string), '%')))
     	      AND (:filtroDni IS NULL OR LOWER(h.dni) LIKE LOWER(CONCAT('%', CAST(:filtroDni AS string), '%')))
-    	    """)
-    	Page<HermanoListaDTO> buscarHermanosConEstadoPago(
-    	    @Param("cofradiaId") Long cofradiaId,
-    	    @Param("cuotaId") Long cuotaId,
-    	    @Param("filtroNombre") String filtroNombre,
-    	    @Param("filtroDni") String filtroDni,
-    	    Pageable pageable
-    	);
+    	""")
+	Page<HermanoListaDTO> buscarHermanosConEstadoUltimaCuota(
+	    @Param("cofradiaId") Long cofradiaId,
+	    @Param("filtroNombre") String filtroNombre,
+	    @Param("filtroDni") String filtroDni,
+	    Pageable pageable
+	);
 }

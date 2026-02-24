@@ -73,7 +73,7 @@ public class CuotaHermanoService {
     	
         CuotaHermano cuota = cuotaHermanoRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Cuota no encontrada"));
         
-        SituacionPagoHermano pagada = situacionPagoRepo.findByCodigo("PAGADA").orElseThrow(() -> new EntityNotFoundException("Situación de pago 'PAGADA' no encontrada"));
+        SituacionPagoHermano pagada = situacionPagoRepo.findByCodigo("AL_DIA").orElseThrow(() -> new EntityNotFoundException("Situación de pago 'AL_DIA' no encontrada"));
         
         cuota.setSituacionPago(pagada);
         cuota.setFechaPago(LocalDate.now());

@@ -51,66 +51,31 @@ public class DataLoader implements CommandLineRunner {
     private final RolCofradiaRepository rolRepo;
     private final TipoParticipacionRepository tipoParticipacionRepo;
     private final TipoCuotaRepository tipoCuotaRepo;
-    private CuotaRepository cuotaRepo;
-    private CuotaHermanoRepository cuotaHermanoRepo;
+    private final CuotaRepository cuotaRepo;
+    private final CuotaHermanoRepository cuotaHermanoRepo;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) throws Exception {
         cargarCofradias();
-        cargarRoles();
         cargarMaestras();
         cargarUsuarios();
         cargarHermanosDePrueba();
+        generarCuotasSimuladas();
     }
 
     // =========================================================
-    // BLOQUE 1: COFRADÍAS
+    // BLOQUE 1: MAESTRAS
     // =========================================================
-    private void cargarCofradias() {
-        cofradiaRepo.findByNombre("Cofradia de la Expiración")
-                .orElseGet(() -> cofradiaRepo.save(Cofradia.builder()
-                        .nombre("Cofradia de la Expiración")
-                        .nombreCompleto("Cofradia del Santísimo Cristo de la Expiración, Señor de las Penas, y María Santísima de los Dolores")
-                        .cif("G12345678")
-                        .slug("expiracion")
-                        .colorPrincipal1("#000000")
-                        .colorPrincipal2("#ffffff")
-                        .colorSecundario("#ffd700")
-                        .usarColoresPersonalizados(Boolean.TRUE)
-                        .build()));
-
-        cofradiaRepo.findByNombre("Hermandad del prendimiento")
-                .orElseGet(() -> cofradiaRepo.save(Cofradia.builder()
-                        .nombre("Hermandad del prendimiento")
-                        .nombreCompleto("Hermandad del prendimiento")
-                        .cif("G12345677")
-                        .slug("prendimiento")
-                        .colorPrincipal1("#800040")
-                        .colorPrincipal2("#FDFBD4")
-                        .usarColoresPersonalizados(Boolean.TRUE)
-                        .build()));
-
-        System.out.println(">> Cofradías aseguradas.");
-    }
-
-    // =========================================================
-    // BLOQUE 2: ROLES
-    // =========================================================
-    private void cargarRoles() {
-        createRolSiNoExiste("ADMIN", "Administrador");
+    private void cargarMaestras() {
+    	
+    	createRolSiNoExiste("ADMIN", "Administrador");
         createRolSiNoExiste("HM",    "Hermano mayor");
         createRolSiNoExiste("TES",   "Tesorero");
         createRolSiNoExiste("SEC",   "Secretario");
         createRolSiNoExiste("RRSS",  "Redes sociales");
         createRolSiNoExiste("HER",   "Hermano");
         System.out.println(">> Roles asegurados.");
-    }
-
-    // =========================================================
-    // BLOQUE 3: MAESTRAS
-    // =========================================================
-    private void cargarMaestras() {
 
         if (situacionRepo.count() == 0) {
             situacionRepo.save(SituacionHermano.builder().codigo("ACTIVO").descripcion("Hermano en activo").codigoVisual("Activo").build());
@@ -121,7 +86,7 @@ public class DataLoader implements CommandLineRunner {
 
         if (situacionPagoRepo.count() == 0) {
             situacionPagoRepo.save(SituacionPagoHermano.builder().codigo("AL_DIA").descripcion("Sin cuotas pendientes").codigoVisual("Al día").build());
-            situacionPagoRepo.save(SituacionPagoHermano.builder().codigo("DEUDOR").descripcion("Con cuotas pendientes").codigoVisual("No pagado").build());
+            situacionPagoRepo.save(SituacionPagoHermano.builder().codigo("PENDIENTE").descripcion("Con cuotas pendientes").codigoVisual("No pagado").build());
             situacionPagoRepo.save(SituacionPagoHermano.builder().codigo("EXENTO").descripcion("Exento de pago por protocolo").codigoVisual("Exento").build());
             System.out.println(">> Situaciones de pago cargadas.");
         }
@@ -161,6 +126,36 @@ public class DataLoader implements CommandLineRunner {
     }
 
     // =========================================================
+    // BLOQUE 2: COFRADÍAS
+    // =========================================================
+    private void cargarCofradias() {
+        cofradiaRepo.findByNombre("Cofradia de la Expiración")
+                .orElseGet(() -> cofradiaRepo.save(Cofradia.builder()
+                        .nombre("Cofradia de la Expiración")
+                        .nombreCompleto("Cofradia del Santísimo Cristo de la Expiración, Señor de las Penas, y María Santísima de los Dolores")
+                        .cif("G12345678")
+                        .slug("expiracion")
+                        .colorPrincipal1("#000000")
+                        .colorPrincipal2("#ffffff")
+                        .colorSecundario("#ffd700")
+                        .usarColoresPersonalizados(Boolean.TRUE)
+                        .build()));
+
+        cofradiaRepo.findByNombre("Hermandad del prendimiento")
+                .orElseGet(() -> cofradiaRepo.save(Cofradia.builder()
+                        .nombre("Hermandad del prendimiento")
+                        .nombreCompleto("Hermandad del prendimiento")
+                        .cif("G12345677")
+                        .slug("prendimiento")
+                        .colorPrincipal1("#800040")
+                        .colorPrincipal2("#FDFBD4")
+                        .usarColoresPersonalizados(Boolean.TRUE)
+                        .build()));
+
+        System.out.println(">> Cofradías aseguradas.");
+    }
+
+    // =========================================================
     // BLOQUE 4: USUARIOS
     // =========================================================
     private void cargarUsuarios() {
@@ -185,6 +180,41 @@ public class DataLoader implements CommandLineRunner {
         crearHermanoDePrueba(prendimiento, "54119089C", 1, 2023);
 
         System.out.println(">> Hermanos de prueba asegurados.");
+    }
+
+    // =========================================================
+    // BLOQUE 6: CUOTAS SIMULADAS
+    // =========================================================
+    private void generarCuotasSimuladas() {
+        // 1. Buscar o crear la cuota 2025
+        Cuota cuota2025 = cuotaRepo.findByAnio(2025).orElseGet(() -> {
+            Cuota c = new Cuota();
+            c.setAnio(2025);
+            c.setImporteBase(new BigDecimal("30.00"));
+            c.setTipo(tipoCuotaRepo.findByCodigo("ANUAL").orElseThrow());
+            return cuotaRepo.save(c);
+        });
+
+        // 2. Obtener la situación "AL_DIA" para simular pago
+        SituacionPagoHermano alDia = situacionPagoRepo.findByCodigo("AL_DIA").orElseThrow();
+
+        // 3. Obtener todos los hermanos
+        List<Hermano> todos = hermanoRepo.findAll();
+
+        // 4. Crear o actualizar CuotaHermano para cada hermano simulando pago
+        for (Hermano h : todos) {
+            if (cuotaHermanoRepo.findByHermanoIdAndCuotaId(h.getId(), cuota2025.getId()).isEmpty()) {
+                CuotaHermano ch = new CuotaHermano();
+                ch.setHermano(h);
+                ch.setCuota(cuota2025);
+                ch.setCofradia(h.getCofradia());
+                ch.setSituacionPago(alDia);
+                ch.setFechaPago(LocalDate.of(2025, 1, 15));
+                ch.setImporteFinal(cuota2025.getImporteBase());
+                cuotaHermanoRepo.save(ch);
+            }
+        }
+        System.out.println(">> Cuotas 2025 generadas como 'AL_DIA' para todos los hermanos.");
     }
 
     // =========================================================
@@ -233,39 +263,13 @@ public class DataLoader implements CommandLineRunner {
                     .localidad("Adra")
                     .fechaNacimiento(LocalDate.of(1995, 10, 27))
                     .fechaInicioCofradia(anioInicio)
-                    .fechaUltimoPago(2026)
+                    .fechaUltimoPago(2025)
                     .iban("ES123456789132456789")
                     .lopd(true)
                     .build());
         }
     }
     
-    public void cargarCuota2025ConPagoParaHermano(Hermano hermano) {
-        // 1. Crear o buscar la cuota del año 2025
-        Cuota cuota2025 = cuotaRepo.findByAnio(2025)
-            .orElseGet(() -> {
-                Cuota nuevaCuota = new Cuota();
-                nuevaCuota.setAnio(2025);
-                nuevaCuota.setImporte(new BigDecimal("30.00")); // Ajusta importe si quieres
-                nuevaCuota.setTipoCuota(tipoCuotaRepository.findByCodigo("ANUAL").orElse(null)); // Ajusta tipo cuota
-                return cuotaRepository.save(nuevaCuota);
-            });
-
-        // 2. Buscar la situación de pago "PENDIENTE" o "AL_DIA" según quieras
-        SituacionPagoHermano situacionPago = situacionPagoRepo.findByCodigo("PENDIENTE")
-            .orElseThrow(() -> new RuntimeException("Situación de pago 'PENDIENTE' no encontrada"));
-
-        // 3. Crear la relación CuotaHermano para el hermano y la cuota 2025
-        CuotaHermano cuotaHermano = new CuotaHermano();
-        cuotaHermano.setCuota(cuota2025);
-        cuotaHermano.setHermano(hermano);
-        cuotaHermano.setSituacionPago(situacionPago);
-        // No ponemos fechaPago porque está pendiente
-        cuotaHermanoRepo.save(cuotaHermano);
-
-        System.out.println("Cuota 2025 creada y asociada al hermano " + hermano.getNumHermano());
-    }
-
     private void savePago(String cod, String desc, String codVis) {
         FormaPago f = new FormaPago();
         f.setCodigo(cod);

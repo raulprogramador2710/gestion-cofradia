@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
+import es.cofradia.gestioncofradia.modulo.cofradias.dominio.Cofradia;
 import es.cofradia.gestioncofradia.modulo.hermanos.dominio.Hermano;
 import es.cofradia.gestioncofradia.modulo.maestras.dominio.FormaPago;
 import es.cofradia.gestioncofradia.modulo.maestras.dominio.SituacionPagoHermano;
@@ -46,6 +47,10 @@ public class CuotaHermano {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cuota_id", nullable = false)
     private Cuota cuota;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cofradia_id", nullable = false)
+    private Cofradia cofradia; 
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hermano_id", nullable = false)

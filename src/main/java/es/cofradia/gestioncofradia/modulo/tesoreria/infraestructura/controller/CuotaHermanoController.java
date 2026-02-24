@@ -27,10 +27,12 @@ public class CuotaHermanoController {
 
     private static final List<String> ROLES_GESTION = List.of("ADMIN", "HM", "TES", "SEC");
 
-    @PostMapping("/gestion/cuotas/marcar-pagada/{id}")
-    public ResponseEntity<Void> marcarCuotaPagada(@PathVariable Long id) {
+    @PostMapping("/marcar-pagada/{id}")
+    public ResponseEntity<Void> marcarCuotaPagada(Principal principal, @PathVariable Long id) {
+    	
         try {
             cuotaHermanoService.marcarComoPagada(id);
+            
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -41,10 +43,11 @@ public class CuotaHermanoController {
     // MÉTODO PRIVADO
     // =========================================================
     private UsuarioCofradia resolverUsuarioCofradia(Principal principal) {
+    	
         Usuario usuario = usuarioRepo.findByUsuario(principal.getName()).orElseThrow();
-        return usuario.getUsuarioCofradias().stream()
-                .filter(a -> a.getRol() != null && ROLES_GESTION.contains(a.getRol().getCodigo()))
-                .findFirst()
-                .orElseThrow(() -> new AccessDeniedException("Sin permisos de gestión"));
+        
+        return usuario.getUsuarioCofradias().stream().filter(a -> a.getRol() != null && ROLES_GESTION.contains(a.getRol().getCodigo())).findFirst().
+        		orElseThrow(() -> new AccessDeniedException("Sin permisos de gestión"));
     }
+    
 }
