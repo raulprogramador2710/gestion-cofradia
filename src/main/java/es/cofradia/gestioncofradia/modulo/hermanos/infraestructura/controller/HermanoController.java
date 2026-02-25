@@ -32,6 +32,7 @@ import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.Fo
 import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.SituacionHermanoRepository;
 import es.cofradia.gestioncofradia.modulo.maestras.infraestructura.repository.SituacionPagoHermanoRepository;
 import es.cofradia.gestioncofradia.modulo.salidas.dominio.PapeletaSitio;
+import es.cofradia.gestioncofradia.modulo.salidas.dominio.TipoParticipacion;
 import es.cofradia.gestioncofradia.modulo.salidas.infraestructura.repository.PapeletaSitioRepository;
 import es.cofradia.gestioncofradia.modulo.salidas.infraestructura.repository.TipoParticipacionRepository;
 import es.cofradia.gestioncofradia.modulo.tesoreria.aplicacion.CuotaHermanoService;
@@ -128,10 +129,10 @@ public class HermanoController {
         hermano.setSituacion(new SituacionHermano());
         hermano.setFormaPago(new FormaPago());
         hermano.setFormaComunicacion(new FormaComunicacion());
+        hermano.setTipoParticipacion(new TipoParticipacion());
 
         model.addAttribute("hermano", hermano);
         model.addAttribute("esNuevo", true);
-        // No hay papeleta previa en un hermano nuevo
         model.addAttribute("tipoParticipacionActualId", null);
         cargarMaestras(model);
 
@@ -152,6 +153,7 @@ public class HermanoController {
         if (hermano.getSituacion() == null)         hermano.setSituacion(new SituacionHermano());
         if (hermano.getFormaPago() == null)         hermano.setFormaPago(new FormaPago());
         if (hermano.getFormaComunicacion() == null) hermano.setFormaComunicacion(new FormaComunicacion());
+        if (hermano.getTipoParticipacion() == null) hermano.setTipoParticipacion(new TipoParticipacion());
 
         // Recuperar la papeleta del año actual para preseleccionar el tipo en el formulario
         int anioActual = Year.now().getValue();
@@ -191,27 +193,30 @@ public class HermanoController {
 
         // --- 2. Resolver entidades maestras ---
         hermano.setSituacion(
-    	    (hermano.getSituacion() != null && hermano.getSituacion().getId() != null)
-    	        ? situacionRepo.findById(hermano.getSituacion().getId()).orElse(null) : null
+    	    (hermano.getSituacion() != null && hermano.getSituacion().getId() != null) ? situacionRepo.findById(hermano.getSituacion().getId()).orElse(null) : null
     	);
 
         hermano.setFormaPago(
-            (hermano.getFormaPago() != null && hermano.getFormaPago().getId() != null)
-                ? pagoRepo.findById(hermano.getFormaPago().getId()).orElse(null) : null
+            (hermano.getFormaPago() != null && hermano.getFormaPago().getId() != null) ? pagoRepo.findById(hermano.getFormaPago().getId()).orElse(null) : null
         );
+        
         hermano.setFormaComunicacion(
-            (hermano.getFormaComunicacion() != null && hermano.getFormaComunicacion().getId() != null)
-                ? comunicacionRepo.findById(hermano.getFormaComunicacion().getId()).orElse(null) : null
+            (hermano.getFormaComunicacion() != null && hermano.getFormaComunicacion().getId() != null) ? comunicacionRepo.findById(hermano.getFormaComunicacion().getId()).orElse(null) : null
         );
 
-        if (tipoParticipacionId != null) {
-        	hermano.setTipoParticipacion(tipoParticipacionRepo.findById(tipoParticipacionId).orElse(null));
-        }else {
+     // Resolver tipoParticipacion desde el propio objeto ligado en el form
+        if (hermano.getTipoParticipacion() != null && hermano.getTipoParticipacion().getId() != null) {
+            hermano.setTipoParticipacion(tipoParticipacionRepo.findById(hermano.getTipoParticipacion().getId()).orElse(null));
+        } else {
             hermano.setTipoParticipacion(null); // permite dejarlo vacío
         }
 
         // --- 3. Guardar hermano ---
-        hermanoRepo.save(hermano);
+        Hermano saved =hermanoRepo.save(hermano);
+        
+        
+        cuotaHermanoService.crearCuotaHermanoSiCuotaActiva(saved);
+        
 
         return "redirect:/gestion/hermanos?success";
     }

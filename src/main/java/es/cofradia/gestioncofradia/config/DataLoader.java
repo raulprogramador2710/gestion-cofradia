@@ -85,7 +85,7 @@ public class DataLoader implements CommandLineRunner {
         }
 
         if (situacionPagoRepo.count() == 0) {
-            situacionPagoRepo.save(SituacionPagoHermano.builder().codigo("AL_DIA").descripcion("Sin cuotas pendientes").codigoVisual("Al día").build());
+            situacionPagoRepo.save(SituacionPagoHermano.builder().codigo("PAGADO").descripcion("Sin cuotas pendientes").codigoVisual("Pagado").build());
             situacionPagoRepo.save(SituacionPagoHermano.builder().codigo("PENDIENTE").descripcion("Con cuotas pendientes").codigoVisual("No pagado").build());
             situacionPagoRepo.save(SituacionPagoHermano.builder().codigo("EXENTO").descripcion("Exento de pago por protocolo").codigoVisual("Exento").build());
             System.out.println(">> Situaciones de pago cargadas.");
@@ -186,17 +186,20 @@ public class DataLoader implements CommandLineRunner {
     // BLOQUE 6: CUOTAS SIMULADAS
     // =========================================================
     private void generarCuotasSimuladas() {
+    	Cofradia expiracion = cofradiaRepo.findByNombre("Cofradia de la Expiración").orElseThrow();
         // 1. Buscar o crear la cuota 2025
         Cuota cuota2025 = cuotaRepo.findByAnio(2025).orElseGet(() -> {
             Cuota c = new Cuota();
             c.setAnio(2025);
-            c.setImporteBase(new BigDecimal("30.00"));
+            c.setNombre("Cuota Anual 2025");
+            c.setCofradia(expiracion);
+            c.setImporte(new BigDecimal("25.00"));
             c.setTipo(tipoCuotaRepo.findByCodigo("ANUAL").orElseThrow());
             return cuotaRepo.save(c);
         });
 
-        // 2. Obtener la situación "AL_DIA" para simular pago
-        SituacionPagoHermano alDia = situacionPagoRepo.findByCodigo("AL_DIA").orElseThrow();
+        // 2. Obtener la situación "PAGADO" para simular pago
+        SituacionPagoHermano alDia = situacionPagoRepo.findByCodigo("PAGADO").orElseThrow();
 
         // 3. Obtener todos los hermanos
         List<Hermano> todos = hermanoRepo.findAll();
@@ -210,11 +213,11 @@ public class DataLoader implements CommandLineRunner {
                 ch.setCofradia(h.getCofradia());
                 ch.setSituacionPago(alDia);
                 ch.setFechaPago(LocalDate.of(2025, 1, 15));
-                ch.setImporteFinal(cuota2025.getImporteBase());
+                ch.setImporteFinal(cuota2025.getImporte());
                 cuotaHermanoRepo.save(ch);
             }
         }
-        System.out.println(">> Cuotas 2025 generadas como 'AL_DIA' para todos los hermanos.");
+        System.out.println(">> Cuotas 2025 generadas como 'PAGADO' para todos los hermanos.");
     }
 
     // =========================================================

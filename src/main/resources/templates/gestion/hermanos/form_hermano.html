@@ -33,6 +33,10 @@
       </div>
       <div class="card-body pt-0">
         <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label text-muted small fw-bold">DNI / NIE</label>
+            <input type="text" class="form-control shadow-none" th:field="*{dni}" required/>
+          </div>
           <div class="col-md-4">
             <label class="form-label text-muted small fw-bold">Nombre</label>
             <input type="text" class="form-control shadow-none" th:field="*{nombre}" required/>
@@ -42,10 +46,6 @@
             <input type="text" class="form-control shadow-none" th:field="*{apellidos}" required/>
           </div>
           <div class="col-md-3">
-            <label class="form-label text-muted small fw-bold">DNI / NIE</label>
-            <input type="text" class="form-control shadow-none" th:field="*{dni}" required/>
-          </div>
-          <div class="col-md-4">
             <label class="form-label text-muted small fw-bold">Fecha de Nacimiento</label>
             <input type="date" class="form-control shadow-none" name="fechaNacimiento"
                    th:value="${hermano.fechaNacimiento != null ? #temporals.format(hermano.fechaNacimiento, 'yyyy-MM-dd') : ''}" required/>
@@ -105,15 +105,9 @@
             <input type="number" class="form-control shadow-none" name="fechaUltimoPago"
                    th:value="${hermano.fechaUltimoPago != null ? hermano.fechaUltimoPago : ''}" />
           </div>
-          <div class="col-md-8">
+          <div class="col-md-4">
             <label class="form-label text-muted small fw-bold">Cuenta Bancaria (IBAN)</label>
             <input type="text" class="form-control shadow-none" th:field="*{iban}" placeholder="ES00 0000..."/>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label text-muted small fw-bold">Estado de Cuotas</label>
-            <select class="form-select shadow-none" th:field="*{situacionPago.id}">
-              <option th:each="sp : ${situacionesPago}" th:value="${sp.id}" th:text="${sp.codigoVisual}"></option>
-            </select>
           </div>
         </div>
       </div>

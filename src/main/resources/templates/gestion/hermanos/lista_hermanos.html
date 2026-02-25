@@ -83,7 +83,7 @@
                                       class="badge rounded-pill"
                                       th:text="${h.pagoVisual ?: '-'}"
                                       th:classappend="${
-                                        h.pagoCodigo == 'AL_DIA'    ? ' bg-success' :
+                                        h.pagoCodigo == 'PAGADO'    ? ' bg-success' :
                                         (h.pagoCodigo == 'NO_PAGADO' ? ' bg-warning text-dark' :
                                         (h.pagoCodigo == 'EXENTO'   ? ' bg-info text-dark' : ' bg-secondary'))}">
                                 </span>

@@ -27,18 +27,6 @@ public class CuotaHermanoController {
 
     private static final List<String> ROLES_GESTION = List.of("ADMIN", "HM", "TES", "SEC");
 
-    @PostMapping("/marcar-pagada/{id}")
-    public ResponseEntity<Void> marcarCuotaPagada(Principal principal, @PathVariable Long id) {
-    	
-        try {
-            cuotaHermanoService.marcarComoPagada(id);
-            
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
     // =========================================================
     // MÉTODO PRIVADO
     // =========================================================

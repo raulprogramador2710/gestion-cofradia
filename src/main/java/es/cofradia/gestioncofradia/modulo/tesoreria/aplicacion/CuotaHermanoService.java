@@ -2,6 +2,7 @@ package es.cofradia.gestioncofradia.modulo.tesoreria.aplicacion;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,12 +45,12 @@ public class CuotaHermanoService {
         }
 
         // 3. Creamos el registro de pago
-        SituacionPagoHermano alDia = situacionPagoRepo.findByCodigo("AL_DIA").orElseThrow(() -> new RuntimeException("No existe situación AL_DIA en maestras"));
+        SituacionPagoHermano alDia = situacionPagoRepo.findByCodigo("PAGADO").orElseThrow(() -> new RuntimeException("No existe situación PAGADO en maestras"));
 
         CuotaHermano pago = CuotaHermano.builder()
                 .cuota(cuotaActiva)
                 .hermano(hermano)
-                .importeFinal(cuotaActiva.getImporteBase())
+                .importeFinal(cuotaActiva.getImporte())
                 .situacionPago(alDia)
                 .fechaPago(LocalDate.now())
                 .generadoPor("SECRETARIO")
@@ -73,12 +74,43 @@ public class CuotaHermanoService {
     	
         CuotaHermano cuota = cuotaHermanoRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Cuota no encontrada"));
         
-        SituacionPagoHermano pagada = situacionPagoRepo.findByCodigo("AL_DIA").orElseThrow(() -> new EntityNotFoundException("Situación de pago 'AL_DIA' no encontrada"));
+        SituacionPagoHermano pagada = situacionPagoRepo.findByCodigo("PAGADO").orElseThrow(() -> new EntityNotFoundException("Situación de pago 'PAGADO' no encontrada"));
         
         cuota.setSituacionPago(pagada);
         cuota.setFechaPago(LocalDate.now());
         
         cuotaHermanoRepo.save(cuota);
+    }
+    
+    @Transactional
+    public void crearCuotaHermanoSiCuotaActiva(Hermano hermano) {
+        if (hermano == null || hermano.getCofradia() == null) return;
+
+        // 1) obtener cuota activa más reciente para la cofradía
+        Optional<Cuota> optCuota = cuotaRepo.findFirstByCofradiaIdAndActivaTrueOrderByAnioDesc(hermano.getCofradia().getId());
+        if (optCuota.isEmpty()) return;
+
+        Cuota cuotaActiva = optCuota.get();
+
+        // 2) comprobar duplicado
+        if (cuotaHermanoRepo.existsByCuotaIdAndHermanoId(cuotaActiva.getId(), hermano.getId())) {
+            return; // ya existe → no crear
+        }
+
+        // 3) obtener situación "PENDIENTE" (o fallback)
+        SituacionPagoHermano pendiente = situacionPagoRepo.findByCodigo("PENDIENTE")
+                .orElseGet(() -> situacionPagoRepo.findAll().stream().findFirst().orElse(null));
+
+        // 4) crear y guardar
+        CuotaHermano ch = new CuotaHermano();
+        ch.setCuota(cuotaActiva);
+        ch.setHermano(hermano);
+        ch.setCofradia(hermano.getCofradia());
+        ch.setSituacionPago(pendiente);
+        // ajustar importe según la entidad: uso importeBase como ejemplo
+        ch.setImporteFinal(cuotaActiva.getImporte());
+
+        cuotaHermanoRepo.save(ch);
     }
     
 }

@@ -10,9 +10,9 @@ import es.cofradia.gestioncofradia.modulo.cofradias.dominio.Cofradia;
 import es.cofradia.gestioncofradia.modulo.maestras.dominio.FormaComunicacion;
 import es.cofradia.gestioncofradia.modulo.maestras.dominio.FormaPago;
 import es.cofradia.gestioncofradia.modulo.maestras.dominio.SituacionHermano;
-import es.cofradia.gestioncofradia.modulo.maestras.dominio.SituacionPagoHermano;
 import es.cofradia.gestioncofradia.modulo.salidas.dominio.PapeletaSitio;
 import es.cofradia.gestioncofradia.modulo.salidas.dominio.TipoParticipacion;
+import es.cofradia.gestioncofradia.modulo.tesoreria.dominio.CuotaHermano;
 import es.cofradia.gestioncofradia.modulo.usuarios.dominio.Usuario;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -83,6 +83,9 @@ public class Hermano {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tipo_participacion_id")
     private TipoParticipacion tipoParticipacion;
+    
+    @OneToMany(mappedBy = "hermano", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CuotaHermano> cuotasHermano;
     
     @OneToMany(mappedBy = "hermano", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("anio DESC")

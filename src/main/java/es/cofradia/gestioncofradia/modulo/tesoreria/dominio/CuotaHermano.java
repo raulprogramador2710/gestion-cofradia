@@ -56,7 +56,7 @@ public class CuotaHermano {
     @JoinColumn(name = "hermano_id", nullable = false)
     private Hermano hermano;
 
-    private BigDecimal importeFinal; // Por si hay descuento respecto al importeBase
+    private BigDecimal importeFinal; // Por si hay descuento respecto al importe
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "situacion_pago_id")

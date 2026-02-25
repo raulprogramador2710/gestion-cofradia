@@ -19,6 +19,7 @@ import es.cofradia.gestioncofradia.modulo.tesoreria.infraestructura.repository.C
 import es.cofradia.gestioncofradia.modulo.usuarios.dominio.Usuario;
 import es.cofradia.gestioncofradia.modulo.usuarios.dominio.UsuarioCofradia;
 import es.cofradia.gestioncofradia.modulo.usuarios.infraestructura.repository.UsuarioRepository;
+import jakarta.servlet.http.HttpSession; // Importante para la sesión
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -31,7 +32,7 @@ public class InicioController {
     private final CuotaHermanoRepository cuotaHermanoRepository;
 
     @GetMapping({"/gestion/inicio", "/gestion/dashboard"})
-    public String Inicio(Model model, Principal principal) {
+    public String Inicio(Model model, Principal principal, HttpSession session) { // Añadimos HttpSession
 
         List<Hermano> hermanos = List.of();
 
@@ -40,12 +41,20 @@ public class InicioController {
 
             if (userOpt.isPresent()) {
                 Usuario u = userOpt.get();
-                model.addAttribute("usuarioLogueado", u.getUsuario());
-
+                
+                // GUARDAR EN SESIÓN PARA EL MENU (base.html)
+                session.setAttribute("nombreUsuario", u.getUsuario()); // O u.getNombre() si tienes ese campo
+                
                 if (!u.getUsuarioCofradias().isEmpty()) {
                     UsuarioCofradia primeraAsociacion = u.getUsuarioCofradias().iterator().next();
                     Long cofradiaId = primeraAsociacion.getCofradia().getId();
 
+                    // GUARDAR EN SESIÓN PARA EL MENU (base.html)
+                    session.setAttribute("nombreCofradia", primeraAsociacion.getCofradia().getNombre());
+                    session.setAttribute("rolUsuario", primeraAsociacion.getRol().getDescripcion());
+                    session.setAttribute("cofradiaId", cofradiaId);
+
+                    // Atributos para el Model (solo para inicio.html)
                     model.addAttribute("cofradia", primeraAsociacion.getCofradia());
                     model.addAttribute("rolUsuario", primeraAsociacion.getRol().getDescripcion());
 
@@ -73,19 +82,17 @@ public class InicioController {
 
         model.addAttribute("totalHermanos", hermanos.size());
 
-        // Por Situación (sigue igual, viene de Hermano)
+        // Estadísticas (proseguir igual...)
         Map<String, Integer> hermanosPorSituacion = hermanos.stream()
                 .map(h -> h.getSituacion() != null ? h.getSituacion().getCodigoVisual() : "Sin Situación")
                 .collect(Collectors.groupingBy(Function.identity(),
                         Collectors.collectingAndThen(Collectors.counting(), Long::intValue)));
 
-        // Por Forma de Pago (sigue igual, viene de Hermano)
         Map<String, Integer> hermanosPorFormaPago = hermanos.stream()
                 .map(h -> h.getFormaPago() != null ? h.getFormaPago().getCodigoVisual() : "Sin Forma de Pago")
                 .collect(Collectors.groupingBy(Function.identity(),
                         Collectors.collectingAndThen(Collectors.counting(), Long::intValue)));
 
-        // Por Forma de Comunicación (sigue igual, viene de Hermano)
         Map<String, Integer> hermanosPorFormaComunicacion = hermanos.stream()
                 .map(h -> h.getFormaComunicacion() != null ? h.getFormaComunicacion().getCodigoVisual() : "Sin Comunicación")
                 .collect(Collectors.groupingBy(Function.identity(),
@@ -95,7 +102,6 @@ public class InicioController {
         model.addAttribute("hermanosPorFormaPago", hermanosPorFormaPago);
         model.addAttribute("hermanosPorFormaComunicacion", hermanosPorFormaComunicacion);
 
-        // Si no había cofradía, ponemos el mapa vacío para que el HTML no falle
         if (!model.containsAttribute("hermanosPorSituacionPago")) {
             model.addAttribute("hermanosPorSituacionPago", Map.of());
         }

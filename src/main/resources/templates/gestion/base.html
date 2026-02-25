@@ -2,67 +2,133 @@
 <html xmlns:th="http://www.thymeleaf.org" th:fragment="layout(title, section)">
 <head>
     <meta charset="UTF-8" />
-    <!-- El molde recibe el título de cada página -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title th:replace="${title}">Gestión Cofradía</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/gestion-style.css}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Contenedor principal del Logo + Cofradía */
+        .brand-wrapper {
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Bloque Izquierdo: Gestión Cofradía en dos líneas */
+        .brand-main-text {
+            font-weight: bold;
+            font-size: 1.2rem;
+            line-height: 1.1;
+            text-align: left;
+            padding-right: 15px;
+        }
+
+        /* Línea vertical separadora */
+        .brand-separator {
+            border-left: 1px solid rgba(255, 255, 255, 0.5);
+            height: 35px; /* Ajusta la altura de la línea */
+            margin-right: 15px;
+        }
+
+        /* Bloque Derecho: Nombre de la Cofradía */
+        .brand-sub-text {
+            font-size: 0.95rem;
+            font-style: italic;
+            opacity: 0.9;
+            line-height: 1.2;
+            max-width: 150px; /* Para que el nombre de la cofradía también pueda saltar de línea si es largo */
+        }
+
+        /* Ajustes de botones para que quepan bien */
+        @media (min-width: 1200px) {
+            .navbar-nav .nav-item .btn {
+                padding: 6px 8px !important;
+                font-size: 0.85rem !important;
+            }
+            .navbar-nav { gap: 3px !important; }
+        }
+
+        /* Estilo para MÓVIL */
+        @media (max-width: 1199px) {
+            .brand-sub-text { display: none; } /* Ocultamos el nombre largo en móvil para que quepa el botón hamburguesa */
+            .brand-separator { display: none; }
+            .navbar-nav { padding: 1rem 0; }
+            .navbar-nav .nav-item .btn {
+                width: 100%;
+                text-align: left;
+                background: transparent !important;
+                color: white !important;
+                border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+                border-radius: 0;
+            }
+        }
+    </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
 
-    <!-- NAVBAR: Siempre visible en todas las páginas -->
-    <header class="navbar-custom d-flex justify-content-between align-items-center">
-        <div>
-            <a th:href="@{/gestion/inicio}">Gestión Cofradía</a>
-            <span th:if="${session.nombreCofradia}" class="ms-3 opacity-75">
-                | <span th:text="${session.nombreCofradia}">Cofradía</span>
-            </span>
-        </div>
-        
-        <div class="d-flex gap-2">
-            <a th:href="@{/gestion/hermanos}" class="btn btn-logout">Hermanos</a>
-            <a th:href="@{/gestion/cuotas}" class="btn btn-logout">Cuotas</a>
-        </div>
+    <nav class="navbar navbar-expand-xl navbar-custom">
+        <div class="container-fluid">
+            
+            <!-- LOGO DISEÑO IMAGEN -->
+            <a th:href="@{/gestion/inicio}" class="brand-wrapper">
+                <div class="brand-main-text">
+                    Gestión<br>Cofradía
+                </div>
+                <div class="brand-separator"></div>
+                <div th:if="${session.nombreCofradia}" class="brand-sub-text">
+                    <span th:text="${session.nombreCofradia}">Cofradía de la Expiración</span>
+                </div>
+            </a>
+            
+            <button class="navbar-toggler border-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <i class="fas fa-bars text-white"></i>
+            </button>
 
-        <form th:action="@{/logout}" method="post" class="m-0">
-            <button type="submit" class="btn-logout">Cerrar sesión</button>
-        </form>
-    </header>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto gap-1">
+                    <li class="nav-item"><a th:href="@{/gestion/hermanos}" class="btn btn-logout border-0"><i class="fas fa-users me-1"></i> Hermanos</a></li>
+                    <li class="nav-item"><a th:href="@{/gestion/cuotas}" class="btn btn-logout border-0"><i class="fas fa-coins me-1"></i> Cuotas</a></li>
+                    <li class="nav-item"><a th:href="@{/gestion/notificaciones}" class="btn btn-logout border-0"><i class="fas fa-bell me-1"></i> Avisos</a></li>
+                    <li class="nav-item"><a th:href="@{/gestion/noticias}" class="btn btn-logout border-0"><i class="fas fa-newspaper me-1"></i> Noticias</a></li>
+                    <li class="nav-item"><a th:href="@{/gestion/documentos}" class="btn btn-logout border-0"><i class="fas fa-file-pdf me-1"></i> Docs</a></li>
+                    <li class="nav-item"><a th:href="@{/gestion/enseres}" class="btn btn-logout border-0"><i class="fas fa-box-open me-1"></i> Enseres</a></li>
+                    <li class="nav-item"><a th:href="@{/gestion/eventos}" class="btn btn-logout border-0"><i class="fas fa-calendar-alt me-1"></i> Eventos</a></li>
+                    <li class="nav-item"><a th:href="@{/gestion/tareas}" class="btn btn-logout border-0"><i class="fas fa-tasks me-1"></i> Tareas</a></li>
+                    <li class="nav-item"><a th:href="@{/gestion/alquileres}" class="btn btn-logout border-0"><i class="fas fa-key me-1"></i> Alquiler</a></li>
+                    <li class="nav-item"><a th:href="@{/gestion/salidas}" class="btn btn-logout border-0"><i class="fas fa-shoe-prints me-1"></i> Salida</a></li>
+                </ul>
 
-    <!-- CONTENIDO: Aquí es donde se "inyectará" lo que escribas en cada página -->
+                <!-- Bloque usuario y logout -->
+                <div class="d-flex align-items-center gap-3 ms-xl-3 border-start ps-xl-3 user-block-mobile">
+                    <div class="text-white text-end">
+                        <div class="fw-bold" style="font-size: 0.9rem;" th:text="${session.nombreUsuario}">Usuario</div>
+                        <div style="font-size: 0.75rem; opacity: 0.8;" th:text="${session.rolUsuario}">Rol</div>
+                    </div>
+                    <form th:action="@{/logout}" method="post" class="m-0">
+                        <button type="submit" class="btn-logout">Cerrar sesión</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
     <main class="container mt-4 flex-grow-1">
         <div th:replace="${section}">
-            <p>Contenido por defecto si algo falla.</p>
+            <p>Contenido por defecto.</p>
         </div>
     </main>
 
-    <!-- FOOTER: Siempre al final -->
     <footer class="py-4 text-center text-muted mt-auto border-top">
         <small>&copy; <span th:text="${#dates.format(#dates.createNow(),'yyyy')}">2026</span> Gestión Cofradía</small>
     </footer>
 
-    <!-- SCRIPTS: Cargados una sola vez para todos -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script th:src="@{/js/confirm-modal.js}"></script>
-
-    <!-- El modal de confirmación también lo dejamos aquí disponible para todos -->
-    <div id="confirmModal" class="confirm-modal" aria-hidden="true">
-      <div class="confirm-modal-backdrop" data-close-modal></div>
-      <div class="confirm-modal-panel">
-        <header class="confirm-modal-header">
-          <h3 id="confirmModalTitle">Confirmar</h3>
-          <button class="confirm-close" type="button" data-close-modal>&times;</button>
-        </header>
-        <div class="confirm-modal-body">
-          <p id="confirmModalDesc">¿Estás seguro?</p>
-        </div>
-        <div class="confirm-modal-footer">
-          <button id="confirmCancel" class="btn btn-outline-secondary" type="button">Cancelar</button>
-          <button id="confirmAccept" class="btn btn-danger" type="button">Eliminar</button>
-        </div>
-      </div>
-    </div>
-
 </body>
 </html>

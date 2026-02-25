@@ -42,7 +42,7 @@
                         <td>
                             <span class="badge bg-info text-dark" th:text="${c.tipo.codigoVisual}">Anual</span>
                         </td>
-                        <td th:text="${#numbers.formatCurrency(c.importeBase)}">30,00 €</td>
+                        <td th:text="${#numbers.formatCurrency(c.importe)}">30,00 €</td>
                         <td class="text-center">
                             <span th:if="${c.activa}" class="badge bg-success">Activa</span>
                             <span th:unless="${c.activa}" class="badge bg-secondary">Inactiva</span>

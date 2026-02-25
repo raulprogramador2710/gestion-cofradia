@@ -40,7 +40,7 @@ public class Cuota {
     
     private Integer anio;
     
-    private BigDecimal importeBase;
+    private BigDecimal importe;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tipo_cuota_id", nullable = false)

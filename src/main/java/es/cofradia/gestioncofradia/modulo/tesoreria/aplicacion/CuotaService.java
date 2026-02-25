@@ -42,38 +42,59 @@ public class CuotaService {
     }
 
     @Transactional
-    public void guardar(Cuota cuota, Long cofradiaId) {
-        Cofradia cofradia = cofradiaRepository.findById(cofradiaId).orElseThrow();
+    public void guardar(Cuota cuota, Long cofradiaId, String generadoPor) {
+    	Cofradia cofradia = cofradiaRepository.findById(cofradiaId).orElseThrow(() -> new RuntimeException("Cofradía no encontrada"));
+            
         cuota.setCofradia(cofradia);
+        
+        // Guardamos la cuota primero
         Cuota cuotaGuardada = cuotaRepository.save(cuota);
 
-        // Solo al crear (id nuevo), generamos los CuotaHermano automáticamente
-        if (cuota.getId() == null) {
-            generarCuotasHermanos(cuotaGuardada, cofradia);
-        }
+        // Generamos los registros para los hermanos siempre que sea una creación nueva
+        // Usamos la cuota recién guardada que ya tiene ID
+        generarCuotasHermanos(cuotaGuardada, cofradia, generadoPor);
     }
 
-    private void generarCuotasHermanos(Cuota cuota, Cofradia cofradia) {
-        SituacionPagoHermano noPagado = situacionPagoHermanoRepository.findByCodigo("DEUDOR").orElseThrow(() -> new RuntimeException("SituacionPago 'DEUDOR' no encontrada en maestras"));
+    private void generarCuotasHermanos(Cuota cuota, Cofradia cofradia, String generadoPor) {
+    	// 1. Buscar situación PENDIENTE (asegúrate que el código existe en la DB)
+        SituacionPagoHermano noPagado = situacionPagoHermanoRepository.findByCodigo("PENDIENTE").orElseThrow(() -> new RuntimeException("SituacionPago 'PENDIENTE' no encontrada"));
 
-        // Hermanos ACTIVO y FALLECIDO → se les genera cuota
+        // 2. Obtener hermanos que deben recibir la cuota
         List<Hermano> hermanos = hermanoRepository.findByCofradiaIdAndSituacionCodigoIn(cofradia.getId(), List.of("ACTIVO", "FALLECIDO"));
 
+        // 3. Mapear y guardar
         List<CuotaHermano> cuotasHermanos = hermanos.stream()
                 .map(hermano -> CuotaHermano.builder()
                         .cuota(cuota)
                         .hermano(hermano)
-                        .importeFinal(cuota.getImporteBase())
+                        .cofradia(cofradia)
+                        .importeFinal(cuota.getImporte())
                         .situacionPago(noPagado)
-                        .generadoPor("SECRETARIO")
+                        .generadoPor(generadoPor)
                         .build())
                 .toList();
 
-        cuotaHermanoRepository.saveAll(cuotasHermanos);
+        if (!cuotasHermanos.isEmpty()) {
+            cuotaHermanoRepository.saveAll(cuotasHermanos);
+        }
     }
 
     @Transactional
     public void eliminar(Long id) {
         cuotaRepository.deleteById(id);
     }
+    
+    @Transactional
+    public void marcarComoPagada(Long cuotaHermanoId) {
+        CuotaHermano ch = cuotaHermanoRepository.findById(cuotaHermanoId).orElseThrow(() -> new RuntimeException("Registro de cuota no encontrado"));
+
+        SituacionPagoHermano pagado = situacionPagoHermanoRepository.findByCodigo("PAGADO").orElseThrow(() -> new RuntimeException("Situación 'PAGADO' no encontrada"));
+
+        ch.setSituacionPago(pagado);
+        ch.setFechaPago(java.time.LocalDate.now());
+        ch.setImporteFinal(ch.getImporteFinal());
+        
+        cuotaHermanoRepository.save(ch);
+    }
+    
 }

@@ -18,32 +18,24 @@
     <div class="card shadow-sm mb-4 border-0 rounded-4">
         <div class="card-body d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-4">
-                <!-- Avatar circular con iniciales -->
                 <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"
                      style="width: 64px; height: 64px; font-size: 1.5rem; min-width: 64px;"
                      th:text="${#strings.substring(hermano.nombre,0,1) + #strings.substring(hermano.apellidos,0,1)}">
                     JD
                 </div>
-
                 <div>
-                    <!-- Nombre -->
                     <h2 class="fw-light mb-1 text-dark" style="letter-spacing: -0.5px;">
                         <span class="fw-bold" th:text="${hermano.apellidos}">Apellidos</span>,
                         <span th:text="${hermano.nombre}">Nombre</span>
                     </h2>
-
-                    <!-- Metadatos -->
                     <div class="d-flex align-items-center gap-3 text-muted small">
                         <div class="d-flex align-items-center gap-1">
                             <i class="bi bi-hash opacity-50"></i>
-                            <span>ID Hermano:
-                                <span class="fw-bold text-dark" th:text="${hermano.numHermano}">001</span>
-                            </span>
+                            <span>ID Hermano: <span class="fw-bold text-dark" th:text="${hermano.numHermano}">001</span></span>
                         </div>
                     </div>
                 </div>
             </div>
-
             <div class="d-flex gap-2">
                 <button class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1" title="Enviar Notificación">
                     <i class="fas fa-envelope"></i> Notificar
@@ -57,8 +49,7 @@
     <div class="row">
         <!-- COLUMNA IZQUIERDA: DATOS -->
         <div class="col-lg-8">
-
-            <!-- 1. DATOS PERSONALES -->
+            <!-- DATOS PERSONALES -->
             <div class="card shadow-sm border-0 rounded-4 mb-4">
                 <div class="card-header bg-white py-3 border-bottom-0">
                     <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-person-vcard me-2"></i>Datos Personales</h5>
@@ -82,7 +73,7 @@
                 </div>
             </div>
 
-            <!-- 2. CONTACTO Y LOCALIZACIÓN -->
+            <!-- CONTACTO -->
             <div class="card shadow-sm border-0 rounded-4 mb-4">
                 <div class="card-header bg-white py-3 border-bottom-0">
                     <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-geo-alt me-2"></i>Contacto</h5>
@@ -107,14 +98,13 @@
                         </div>
                         <div class="col-md-4">
                             <label class="text-muted small">Preferencia de Comunicación</label>
-                            <div class="fw-semibold"
-                                 th:text="${hermano.formaComunicacion != null ? hermano.formaComunicacion.codigoVisual : '-'}">-</div>
+                            <div class="fw-semibold" th:text="${hermano.formaComunicacion != null ? hermano.formaComunicacion.codigoVisual : '-'}">-</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 3. INFORMACIÓN DE PAGO -->
+            <!-- INFORMACIÓN DE PAGO -->
             <div class="card shadow-sm border-0 rounded-4 mb-4">
                 <div class="card-header bg-white py-3 border-bottom-0">
                     <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-credit-card me-2"></i>Información de Pago</h5>
@@ -123,20 +113,11 @@
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="text-muted small">Método de Pago</label>
-                            <div class="fw-semibold"
-                                 th:text="${hermano.formaPago != null ? hermano.formaPago.codigoVisual : '-'}">-</div>
+                            <div class="fw-semibold" th:text="${hermano.formaPago != null ? hermano.formaPago.codigoVisual : '-'}">-</div>
                         </div>
                         <div class="col-md-4">
                             <label class="text-muted small">Último Pago</label>
-                            <div class="fw-semibold"
-                                 th:text="${hermano.fechaUltimoPago != null ? hermano.fechaUltimoPago : '-'}">-</div>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="text-muted small">Estado de Cuotas</label>
-                            <div class="fw-semibold text-muted">
-						        <i class="bi bi-info-circle me-1"></i>
-						        Ver historial de cuotas
-						    </div>
+                            <div class="fw-semibold" th:text="${hermano.fechaUltimoPago != null ? hermano.fechaUltimoPago : '-'}">-</div>
                         </div>
                         <div class="col-md-8">
                             <label class="text-muted small">IBAN</label>
@@ -146,7 +127,7 @@
                 </div>
             </div>
 
-            <!-- 4. VIDA DE COFRADÍA -->
+            <!-- VIDA DE COFRADÍA -->
             <div class="card shadow-sm border-0 rounded-4 mb-4">
                 <div class="card-header bg-white py-3 border-bottom-0">
                     <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-church me-2"></i>Vida de Cofradía</h5>
@@ -167,74 +148,93 @@
                         </div>
                         <div class="col-md-4">
                             <label class="text-muted small">Participación en Salida</label>
-                            <div class="fw-semibold text-primary"
-                                 th:text="${hermano.tipoParticipacion != null ? hermano.tipoParticipacion.nombre : 'Sin asignar'}">-</div>
+                            <div class="fw-semibold text-primary" th:text="${hermano.tipoParticipacion != null ? hermano.tipoParticipacion.nombre : 'Sin asignar'}">-</div>
                         </div>
                         <div class="col-md-4">
                             <label class="text-muted small">Año de Alta</label>
-                            <div class="fw-semibold"
-                                 th:text="${hermano.fechaInicioCofradia != null ? hermano.fechaInicioCofradia : '-'}">-</div>
+                            <div class="fw-semibold" th:text="${hermano.fechaInicioCofradia != null ? hermano.fechaInicioCofradia : '-'}">-</div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
 
-        <!-- COLUMNA DERECHA: CUOTAS (MOCK) -->
+        <!-- COLUMNA DERECHA: CUOTAS -->
         <div class="col-lg-4">
             <div class="card shadow-sm border-0 rounded-4 mb-4">
-			    <div class="card-header bg-light fw-bold d-flex justify-content-between align-items-center">
-			        Historial de Cuotas
-			        <span class="badge bg-secondary small" th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2024</span>
-			    </div>
-			    <div class="card-body p-0" th:if="${cuotas != null and !cuotas.isEmpty()}">
-			        <ul class="list-group list-group-flush">
-			            <li class="list-group-item p-3" th:each="cuotaHermano : ${cuotas}">
-			                <div class="d-flex justify-content-between align-items-center mb-1">
-			                    <span class="fw-bold" th:text="${'Cuota Anual ' + cuotaHermano.cuota.anio}">Cuota Anual 2024</span>
-			                    <span class="badge"
-			                          th:classappend="${cuotaHermano.situacionPago.codigo == 'PENDIENTE' ? 'bg-warning text-dark' : 'bg-success'}"
-			                          th:text="${cuotaHermano.situacionPago.codigo == 'PENDIENTE' ? 'Pendiente' : 'Pagada'}">Pendiente</span>
-			                </div>
-			                <div class="text-muted small" th:text="${'Importe: ' + #numbers.formatDecimal(cuotaHermano.cuota.importe, 1, 'COMMA', 2, 'POINT') + '€'}">Importe: 30,00€</div>
-			                <div class="text-muted small" th:if="${cuotaHermano.situacionPago.codigo == 'PAGADA'}"
-			                     th:text="${'Pagado el: ' + #temporals.format(cuotaHermano.fechaPago, 'dd/MM/yyyy')}">Pagado el: 15/03/2023</div>
-			                <button class="btn btn-success btn-sm w-100" th:if="${cuotaHermano.situacionPago.codigo == 'PENDIENTE'}"
-			                        th:attr="data-id=${cuotaHermano.id}" onclick="marcarComoPagada(this)">
-			                    Marcar como Pagada
-			                </button>
-			            </li>
-			        </ul>
-			    </div>
-			    <div class="card-body p-3 text-muted" th:if="${cuotas == null or cuotas.isEmpty()}">
-			        No hay cuotas registradas.
-			    </div>
-			</div>
+                <div class="card-header bg-light fw-bold d-flex justify-content-between align-items-center">
+                    Historial de Cuotas
+                    <span class="badge bg-secondary small" th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2024</span>
+                </div>
+                <div class="card-body p-0" th:if="${cuotas != null and !cuotas.isEmpty()}">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item p-3" th:each="cuotaHermano : ${cuotas}">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold" th:text="${'Cuota Anual ' + cuotaHermano.cuota.anio}">Cuota Anual</span>
+                                <span class="badge"
+                                      th:classappend="${cuotaHermano.situacionPago.codigo == 'DEUDOR' ? 'bg-warning text-dark' : 'bg-success'}"
+                                      th:text="${cuotaHermano.situacionPago.codigoVisual}">Estado</span>
+                            </div>
+                            <div class="text-muted small" th:text="${'Importe: ' + #numbers.formatDecimal(cuotaHermano.importeFinal, 1, 'COMMA', 2, 'POINT') + '€'}">0,00€</div>
+                            <div class="text-muted small" th:if="${cuotaHermano.situacionPago.codigo == 'AL_DIA' and cuotaHermano.fechaPago != null}"
+                                 th:text="${'Pagado el: ' + #temporals.format(cuotaHermano.fechaPago, 'dd/MM/yyyy HH:mm')}">Pagado el: 15/03/2023</div>
+                            
+                            <button class="btn btn-success btn-sm w-100 mt-2" 
+                                    th:if="${cuotaHermano.situacionPago.codigo == 'PENDIENTE'}"
+                                    th:attr="data-id=${cuotaHermano.id}"
+                                    onclick="confirmarPago(this)">
+                                Marcar como Pagada
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body p-3 text-muted" th:if="${cuotas == null or cuotas.isEmpty()}">
+                    No hay cuotas registradas.
+                </div>
+            </div>
         </div>
     </div>
 
-</main>
+    <!-- SCRIPT PARA CONECTAR CON EL MODAL DEL BASE.HTML -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        function confirmarPago(btn) {
+            const id = btn.getAttribute('data-id');
+            const modal = document.getElementById('confirmModal');
+            
+            // Rellenamos los textos de TU modal del base.html
+            document.getElementById('confirmModalTitle').textContent = 'Confirmar Pago';
+            document.getElementById('confirmModalDesc').textContent = '¿Deseas marcar esta cuota como pagada?';
+            
+            const btnAceptar = document.getElementById('confirmAccept');
+            btnAceptar.textContent = 'Sí, pagar';
+            btnAceptar.className = 'btn btn-success'; 
 
+            btnAceptar.onclick = function() {
+                const token = document.querySelector("meta[name='_csrf']").getAttribute("content");
+                const header = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+
+                fetch('/gestion/cuotas/marcar-pagada/' + id, {
+                    method: 'POST',
+                    headers: { [header]: token }
+                }).then(response => {
+                    if (response.ok) location.reload();
+                    else alert('Error al procesar el pago');
+                });
+            };
+
+            document.getElementById('confirmCancel').onclick = function() {
+                modal.style.display = 'none';
+            };
+
+            // Mostramos el modal (tu modal usa display: block para mostrarse)
+            modal.style.display = 'block';
+            modal.setAttribute('aria-hidden', 'false');
+        }
+        /*]]>*/
+    </script>
+
+</main>
 </section>
 </body>
-<script>
-function marcarComoPagada(button) {
-    const cuotaId = button.getAttribute('data-id');
-    fetch('/gestion/cuotas/marcar-pagada/' + cuotaId, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': /* Aquí pon el token CSRF si usas Spring Security */,
-            'Content-Type': 'application/json'
-        }
-    }).then(response => {
-        if (response.ok) {
-            // Refrescar la página o actualizar el estado visual
-            location.reload();
-        } else {
-            alert('Error al marcar la cuota como pagada');
-        }
-    });
-}
-</script>
 </html>
